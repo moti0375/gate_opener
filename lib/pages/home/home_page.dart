@@ -1,54 +1,65 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:gate_opener/widgets/designed_button.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gate_opener/channel/channel_adapter_impl.dart';
+import 'package:gate_opener/data/datasources/gate_opener_platform_datasource.dart';
+import 'package:gate_opener/data/repository/GateOpenerRepositoryImpl.dart';
+import 'package:gate_opener/pages/home/home_page_bloc.dart';
+import 'package:gate_opener/pages/home/home_page_event.dart';
+import 'package:gate_opener/pages/home/home_page_state.dart';
+import 'package:gate_opener/res/colors.dart';
+import 'package:gate_opener/res/strings.dart';
+import 'package:gate_opener/widgets/app_text_view.dart';
+import 'package:gate_opener/widgets/gates_list_item.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
+
+  static Widget create() {
+    return BlocProvider(
+      create: (_) =>
+          HomePageBloc(GateOpenerRepositoryImpl(
+              GateOpenerPlatformDataSource(ChannelAdapterImpl()))),
+      child: HomePage(),
+    );
+  }
 }
 
 class _HomePageState extends State<HomePage> {
-  static const channel =
-      MethodChannel("com.bartovapps.gate_opener.flutter.dev/channel");
-
-  Future<void> _startService() async {
-    try {
-      print("_startService");
-      await channel.invokeMethod("startService");
-    } on MissingPluginException catch (e) {} on PlatformException catch (e) {}
-  }
-
-  Future<void> _stopService() async {
-    try {
-      print("_stopService");
-      await channel.invokeMethod("stopService");
-    } on MissingPluginException catch (e) {} on PlatformException catch (e) {}
+  @override
+  void initState() {
+    super.initState();
+    HomePageBloc bloc = context.read<HomePageBloc>();
+    print("initState: $bloc");
+    bloc.add(GetAllGates());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        title: AppTextView(text: MY_GATES_TITLE,),
+      ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DesignedButton(
-              text: "Start Service",
-              onPressed: () => _startService(),
-            ),
-            SizedBox(
-              height: 16,
-            ),
-            DesignedButton(
-              text: "Stop Service",
-              onPressed: () => _stopService(),
-            )
-          ],
-        ),
+          child: BlocBuilder<HomePageBloc, HomePageState>(
+            builder: (context, state) => _buildPageContent(state),
+          )
       ),
     );
+  }
+
+  Widget _buildPageContent(HomePageState state) {
+    if (state is GatesLoaded) {
+      return ListView.separated(
+        itemBuilder: (context, index) => ListItem(null, itemViewModel: state.gates[index],),
+        separatorBuilder: (context, index) => Divider(color: AppColors.GeneralDividerGray, height: 1),
+        itemCount: state.gates.length,);
+    } else {
+      return Container();
+    }
   }
 }

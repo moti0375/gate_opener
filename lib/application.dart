@@ -3,7 +3,6 @@ import 'package:gate_opener/pages/home/home_page.dart';
 import 'package:gate_opener/res/colors.dart';
 import 'package:gate_opener/res/dimens.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -27,7 +26,7 @@ class MyApp extends StatelessWidget {
           ),
           primarySwatch: createMaterialColor(AppColors.primary),
           buttonColor: AppColors.primaryOn),
-      home: HomePage(),
+      home: HomePage.create(),
     );
   }
 }

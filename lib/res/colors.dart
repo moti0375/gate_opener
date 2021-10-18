@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 abstract class AppColors{
-  static const Color primary = Color(0xff5675fb);
-  static const Color primaryOn = Color(0xffFFFFFF);
+  static const Color primary = Color(0xffFFFFFF);
+  static const Color primaryOn = Color(0xff33333d);
   static const Color buttonsPrimary = Color.fromARGB(255, 38, 78, 240);
   static const Color shareButton = Color.fromARGB(255, 109, 204, 155);
   static const Color charcoalGrey = Color(0xff33333d);
@@ -12,6 +12,8 @@ abstract class AppColors{
   static const Color pureGray = Colors.grey;
   static const Color white = Colors.white;
   static const Color black = Colors.black;
+  static const TypographySecondary = Color(0xff818993);
+  static const GeneralDividerGray = Color(0xffE5E8EA);
 }
 
 

@@ -6,7 +6,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import com.bartovapps.gateopener.utils.createAppNotification
+import com.bartovapps.gate_opener.utils.createAppNotification
 
 class GateOpenerService : Service() {
 

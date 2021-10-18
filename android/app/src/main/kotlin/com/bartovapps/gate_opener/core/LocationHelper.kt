@@ -11,8 +11,8 @@ import com.bartovapps.gate_opener.utils.PermissionsHelper
 import com.bartovapps.gate_opener.core.GateOpenerService.Companion.FOREGROUND_SERVICE_ID
 import com.bartovapps.gate_opener.core.dialer.Dialer
 import com.bartovapps.gate_opener.model.ActivityState
-import com.bartovapps.gateopener.utils.FG_CHANNEL
-import com.bartovapps.gateopener.utils.kmhToMsec
+import com.bartovapps.gate_opener.utils.FG_CHANNEL
+import com.bartovapps.gate_opener.utils.kmhToMsec
 import dagger.hilt.android.qualifiers.ApplicationContext
 
 

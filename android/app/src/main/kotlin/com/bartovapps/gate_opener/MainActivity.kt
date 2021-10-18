@@ -64,7 +64,7 @@ class MainActivity : FlutterFragmentActivity(), EventChannel.StreamHandler {
     }
 
     private fun observeViewModel() {
-        viewMode.gatesLiveData.observe(this, {
+        viewMode.gatesMutableLiveData.observe(this, {
            val data = it.map { gate -> gate.serializeToMap() }
            Log.i(TAG, "onChange: $data")
            eventSink?.success(data)

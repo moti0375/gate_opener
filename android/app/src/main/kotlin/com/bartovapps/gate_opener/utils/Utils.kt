@@ -1,5 +1,4 @@
-package com.bartovapps.gateopener.utils
-
+package com.bartovapps.gate_opener.utils
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager

@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
                   letterSpacing: 0.5)
           ),
           primarySwatch: createMaterialColor(AppColors.primary),
+          accentColor: AppColors.pureGray,
           buttonColor: AppColors.primaryOn),
       home: HomePage.create(),
     );

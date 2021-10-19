@@ -14,8 +14,10 @@ class GateOpenerPlatformDataSource implements GateOpenerDataSource {
   }
 
   @override
-  Future<void> deleteGate(Gate gate) {
-    return _adapter.invokeMethod("deleteGate", gate.toJson());
+  Future<void> deleteGate(double gate) {
+    Map<String, dynamic> params = Map();
+    params["id"] = gate;
+    return _adapter.invokeMethod("deleteGate", params);
   }
 
   @override

@@ -1,7 +1,6 @@
 package com.bartovapps.gate_opener
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bartovapps.gate_opener.data.repository.GatesRepository
@@ -23,12 +22,6 @@ class MainViewModel @Inject constructor(private val repository: GatesRepository)
     }
 
     private fun loadAvailableGates() {
-
-        val gates = mutableListOf<Gate>()
-        gates.add(gate1)
-        gates.add(gate2)
-
-        executeOperation { repository.addNewGate(gate2.serializeToMap()) }
     }
 
     private fun executeOperation( operation :() -> Unit){
@@ -36,8 +29,30 @@ class MainViewModel @Inject constructor(private val repository: GatesRepository)
             operation()
         }
     }
+
+    fun dispatchEvent(event: MainViewModelEvent){
+        when(event){
+            is DeleteGate -> deleteGate(event.params)
+            is CreateGate -> createGate(event.params)
+        }
+    }
+
+    private fun createGate(params: Map<String, Any>) {
+        Log.i("MainViewModel", "createGate: params: $params")
+        executeOperation { repository.addNewGate(params) }
+    }
+
+    private fun deleteGate(params: Map<String, Any>) {
+        Log.i("MainViewModel", "deleteGate: params: $params")
+        executeOperation { repository.deleteGate(params) }
+    }
+
     companion object{
-        val gate1 = Gate(id = "abc", name = "Nirim 4 Gate", location = Location(latitude = 34.6, longitude = 32.8), phoneNumber = "0545678765")
-        val gate2 = Gate(id = "abcd", name = "Megido airfield", location = Location(latitude = 36.6, longitude = 38.8), phoneNumber = "0525780876")
+        val gate1 = Gate(name = "Nirim 4 Gate", location = Location(latitude = 34.6, longitude = 32.8), phoneNumber = "0545678765")
+        val gate2 = Gate(name = "Megido airfield", location = Location(latitude = 36.6, longitude = 38.8), phoneNumber = "0525780876")
     }
 }
+
+sealed class MainViewModelEvent
+class DeleteGate(val params: Map<String, Any>) : MainViewModelEvent()
+class CreateGate(val params: Map<String, Any>) : MainViewModelEvent()

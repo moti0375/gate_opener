@@ -20,9 +20,8 @@ class HomePage extends StatefulWidget {
 
   static Widget create() {
     return BlocProvider(
-      create: (_) =>
-          HomePageBloc(GateOpenerRepositoryImpl(
-              GateOpenerPlatformDataSource(ChannelAdapterImpl()))),
+      create: (_) => HomePageBloc(GateOpenerRepositoryImpl(
+          GateOpenerPlatformDataSource(ChannelAdapterImpl()))),
       child: HomePage(),
     );
   }
@@ -40,24 +39,37 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(onPressed: () => context.read<HomePageBloc>().add(AddGate()),child: Icon(Icons.add),),
       appBar: AppBar(
         elevation: 0,
-        title: AppTextView(text: MY_GATES_TITLE,),
+        title: AppTextView(
+          text: MY_GATES_TITLE,
+        ),
       ),
       body: Center(
           child: BlocBuilder<HomePageBloc, HomePageState>(
-            builder: (context, state) => _buildPageContent(state),
-          )
-      ),
+        builder: (context, state) => _buildPageContent(state),
+      )),
     );
   }
 
   Widget _buildPageContent(HomePageState state) {
     if (state is GatesLoaded) {
       return ListView.separated(
-        itemBuilder: (context, index) => ListItem(null, itemViewModel: state.gates[index],),
-        separatorBuilder: (context, index) => Divider(color: AppColors.GeneralDividerGray, height: 1),
-        itemCount: state.gates.length,);
+        itemBuilder: (context, index) => Dismissible(
+            key: Key(state.gates[index].toString()),
+            onDismissed: (direction) {
+              context.read<HomePageBloc>().add(DeleteGate(state.gates[index].id));
+            },
+            direction: DismissDirection.horizontal,
+            child: ListItem(
+              null,
+              itemViewModel: state.gates[index],
+            )),
+        separatorBuilder: (context, index) =>
+            Divider(color: AppColors.GeneralDividerGray, height: 1),
+        itemCount: state.gates.length,
+      );
     } else {
       return Container();
     }

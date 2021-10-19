@@ -20,7 +20,7 @@ class MainActivity : FlutterFragmentActivity(), EventChannel.StreamHandler {
     private val EVENT_CHANNEL = "com.bartovapps.gate_opener.channel.events"
     private val METHOD_CHANNEL = "com.bartovapps.gate_opener.channel"
 
-    private val viewMode by viewModels<MainViewModel>()
+    private val viewModel by viewModels<MainViewModel>()
     private var eventSink: EventChannel.EventSink? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -32,12 +32,11 @@ class MainActivity : FlutterFragmentActivity(), EventChannel.StreamHandler {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, METHOD_CHANNEL).setMethodCallHandler { call, result ->
             Log.i(TAG, "onMethodChannel called: ${call.method}")
             when (call.method) {
-                "startService" -> {
-                    GateOpenerService.sendStartIntent(this)
+                "deleteGate" -> {
+                    viewModel.dispatchEvent(DeleteGate(params = call.arguments as Map<String, Any>))
                 }
-                "stopService" -> {
-                    val intent = Intent(this, GateOpenerService::class.java)
-                    stopService(intent)
+                "createGate" -> {
+                    viewModel.dispatchEvent(CreateGate(params = call.arguments as Map<String, Any>))
                 }
                 else -> {
                     result.notImplemented()
@@ -64,7 +63,7 @@ class MainActivity : FlutterFragmentActivity(), EventChannel.StreamHandler {
     }
 
     private fun observeViewModel() {
-        viewMode.gatesMutableLiveData.observe(this, {
+        viewModel.gatesMutableLiveData.observe(this, {
            val data = it.map { gate -> gate.serializeToMap() }
            Log.i(TAG, "onChange: $data")
            eventSink?.success(data)

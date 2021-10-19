@@ -6,3 +6,12 @@ class GatesLoadedEvent extends HomePageEvent{
   final List<Gate> gates;
   GatesLoadedEvent(this.gates);
 }
+
+class DeleteGate extends HomePageEvent{
+  final double id;
+  DeleteGate(this.id);
+}
+
+class AddGate extends HomePageEvent{
+  AddGate();
+}

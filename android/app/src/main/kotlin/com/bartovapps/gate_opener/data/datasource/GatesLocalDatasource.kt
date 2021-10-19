@@ -1,5 +1,6 @@
 package com.bartovapps.gate_opener.data.datasource
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import com.bartovapps.gate_opener.model.Gate
 import com.bartovapps.gate_opener.storage.gates.GatesDao
@@ -11,6 +12,7 @@ class GatesLocalDatasource @Inject constructor(private val gatesDao: GatesDao) :
     }
 
     override fun insert(gate: Gate) {
+        Log.i("GatesLocalDataSource", "insert $gate")
         gatesDao.insertGate(gate)
     }
 

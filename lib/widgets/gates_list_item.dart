@@ -11,8 +11,9 @@ class ListItemViewModel extends Equatable {
   final String indicatorText;
   final VoidCallback? onPressed;
   final Widget? leadingIcon;
+  final double id;
 
-  ListItemViewModel(this.topRowTitle, this.onPressed, this.leadingIcon,
+  ListItemViewModel(this.id, this.topRowTitle, this.onPressed, this.leadingIcon,
       {this.bottomRowLeftText = StringUtils.EMPTY_STRING,
       this.bottomRowRightText = StringUtils.EMPTY_STRING,
       this.indicatorText = StringUtils.EMPTY_STRING});

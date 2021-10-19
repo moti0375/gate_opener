@@ -7,7 +7,6 @@ import 'package:gate_opener/data/repository/gate_opener_repository.dart';
 class GateOpenerRepositoryImpl implements GateOpenerRepository{
 
   GateOpenerDataSource _dataSource;
-
   GateOpenerRepositoryImpl(this._dataSource);
 
   @override
@@ -16,8 +15,8 @@ class GateOpenerRepositoryImpl implements GateOpenerRepository{
   }
 
   @override
-  Future deleteGate(Gate gate) {
-   return _dataSource.deleteGate(gate);
+  Future deleteGate(double id) {
+   return _dataSource.deleteGate(id);
   }
 
   @override

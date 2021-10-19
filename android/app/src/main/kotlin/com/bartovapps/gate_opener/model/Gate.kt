@@ -12,7 +12,7 @@ val gson = Gson()
 data class Location(val latitude: Double, val longitude: Double)
 
 @Entity
-data class Gate(@PrimaryKey val id: String, val name: String, val location: Location, @ColumnInfo(name = "phone_number") val phoneNumber: String)
+data class Gate(@PrimaryKey(autoGenerate = true) val id: Int = 0, val name: String, val location: Location, @ColumnInfo(name = "phone_number") val phoneNumber: String)
 fun <T> T.serializeToMap(): Map<String, Any> {
     return convert()
 }

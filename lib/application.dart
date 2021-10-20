@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
           ),
           primarySwatch: createMaterialColor(AppColors.primary),
           accentColor: AppColors.pureGray,
-          buttonColor: AppColors.primaryOn),
+          buttonColor: AppColors.pureGray),
       home: HomePage.create(),
     );
   }

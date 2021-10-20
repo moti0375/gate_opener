@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gate_opener/channel/channel_adapter_impl.dart';
 import 'package:gate_opener/data/datasources/gate_opener_platform_datasource.dart';
 import 'package:gate_opener/data/repository/GateOpenerRepositoryImpl.dart';
+import 'package:gate_opener/pages/create_or_edit_gate_page/create_or_edit_gate_page.dart';
 import 'package:gate_opener/pages/home/home_page_bloc.dart';
 import 'package:gate_opener/pages/home/home_page_event.dart';
 import 'package:gate_opener/pages/home/home_page_state.dart';
@@ -39,7 +40,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: () => context.read<HomePageBloc>().add(AddGate()),child: Icon(Icons.add),),
+      floatingActionButton: FloatingActionButton(onPressed: () => navigateToMapPage(),child: Icon(Icons.add),),
       appBar: AppBar(
         elevation: 0,
         title: AppTextView(
@@ -73,5 +74,9 @@ class _HomePageState extends State<HomePage> {
     } else {
       return Container();
     }
+  }
+
+  void navigateToMapPage() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateOrEditGatePage()));
   }
 }

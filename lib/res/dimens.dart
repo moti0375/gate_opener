@@ -10,4 +10,5 @@ abstract class Dimens{
   static const double headline6 = 20;
 
   static const textHeight = 1.25;
+  static const double cornerRadius = 16;
 }

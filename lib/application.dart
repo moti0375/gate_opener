@@ -11,6 +11,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
+        cardTheme: Theme.of(context).cardTheme.copyWith(
+          elevation: 3,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(Dimens.cornerRadius))
+          )
+        ),
           textTheme: TextTheme(
               headline4: GoogleFonts.workSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: Dimens.headline4),
               headline6: GoogleFonts.workSans(color: AppColors.charcoalGrey, fontWeight: FontWeight.bold, fontSize: Dimens.headline4),

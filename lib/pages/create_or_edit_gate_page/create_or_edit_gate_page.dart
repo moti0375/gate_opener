@@ -97,7 +97,7 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
 
   void _moveMapToPosition(LatLng position, zoom){
     CameraPosition camPosition = CameraPosition(target: position, zoom: zoom);
-    _googleMapController.animateCamera(CameraUpdate.newCameraPosition(camPosition));
+    _googleMapController.moveCamera(CameraUpdate.newCameraPosition(camPosition));
   }
 
   void _onCameraMoved(CameraPosition position) {

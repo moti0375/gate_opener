@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           textTheme: TextTheme(
               headline4: GoogleFonts.workSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: Dimens.headline4),
-              headline6: GoogleFonts.workSans(color: AppColors.charcoalGrey, fontWeight: FontWeight.bold, fontSize: Dimens.headline6),
+              headline6: GoogleFonts.workSans(color: AppColors.charcoalGrey, fontWeight: FontWeight.bold, fontSize: Dimens.headline4),
               headline5: GoogleFonts.workSans(color: AppColors.charcoalGrey, fontSize: Dimens.headline4),
               button: GoogleFonts.workSans(color: Theme.of(context).buttonColor, fontSize: Dimens.button, fontWeight: FontWeight.bold),
               caption: GoogleFonts.workSans(color: AppColors.charcoalGrey, fontSize: Dimens.caption),
@@ -26,7 +26,11 @@ class MyApp extends StatelessWidget {
           ),
           primarySwatch: createMaterialColor(AppColors.primary),
           accentColor: AppColors.pureGray,
-          buttonColor: AppColors.pureGray),
+          dividerColor: AppColors.GeneralDividerGray,
+          buttonColor: AppColors.primary,
+          iconTheme: IconThemeData(
+            color: AppColors.pureGray
+          )),
       home: HomePage.create(),
     );
   }

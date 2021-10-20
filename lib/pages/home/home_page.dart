@@ -8,9 +8,10 @@ import 'package:gate_opener/pages/create_or_edit_gate_page/create_or_edit_gate_p
 import 'package:gate_opener/pages/home/home_page_bloc.dart';
 import 'package:gate_opener/pages/home/home_page_event.dart';
 import 'package:gate_opener/pages/home/home_page_state.dart';
-import 'package:gate_opener/res/colors.dart';
 import 'package:gate_opener/res/strings.dart';
+import 'package:gate_opener/widgets/add_gate_card_item.dart';
 import 'package:gate_opener/widgets/app_text_view.dart';
+import 'package:gate_opener/widgets/gate_card_item.dart';
 import 'package:gate_opener/widgets/gates_list_item.dart';
 
 class HomePage extends StatefulWidget {
@@ -40,40 +41,42 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: () => navigateToMapPage(),child: Icon(Icons.add),),
       appBar: AppBar(
         elevation: 0,
         title: AppTextView(
           text: MY_GATES_TITLE,
         ),
       ),
-      body: Center(
-          child: BlocBuilder<HomePageBloc, HomePageState>(
-        builder: (context, state) => _buildPageContent(state),
-      )),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+            child: BlocBuilder<HomePageBloc, HomePageState>(
+          builder: (context, state) => _buildPageContent(state),
+        )),
+      ),
     );
   }
 
   Widget _buildPageContent(HomePageState state) {
     if (state is GatesLoaded) {
-      return ListView.separated(
-        itemBuilder: (context, index) => Dismissible(
-            key: Key(state.gates[index].toString()),
-            onDismissed: (direction) {
-              context.read<HomePageBloc>().add(DeleteGate(state.gates[index].id));
-            },
-            direction: DismissDirection.horizontal,
-            child: ListItem(
-              null,
-              itemViewModel: state.gates[index],
-            )),
-        separatorBuilder: (context, index) =>
-            Divider(color: AppColors.GeneralDividerGray, height: 1),
-        itemCount: state.gates.length,
-      );
+      return _buildGridView(state.gates);
     } else {
       return Container();
     }
+  }
+
+  Widget _buildGridView(List<ListItemViewModel> gates) {
+
+    List<GateCardItem> items = [GateCardItem(onPressed: navigateToMapPage, onLongPressed: (){},), GateCardItem(onPressed: navigateToMapPage, onLongPressed: (){},)];
+
+    return GridView.count(crossAxisCount: 2,
+    children: List.generate(items.length + 1, (index) => index == items.length ? Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: AddGateCardItem(onPressed: navigateToMapPage),
+    ) : Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: items[index],
+    )));
   }
 
   void navigateToMapPage() {

@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gate_opener/pages/home/home_page.dart';
 import 'package:gate_opener/res/colors.dart';
 import 'package:gate_opener/res/dimens.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+
+
+
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(

@@ -38,11 +38,14 @@ dependencies:
   google_maps_flutter: ^2.0.9
   location: ^4.3.0
   address_search_field: ^4.0.1
+  flutter_mobx: ^2.0.2
+  get_it: ^7.2.0
   
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner:
+  mobx_codegen: ^2.0.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

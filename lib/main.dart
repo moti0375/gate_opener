@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gate_opener/application.dart';
 
-void main() {
+import 'di/locator.dart';
+
+void main() async {
+  await setupLocator();
   runApp(MyApp());
 }

@@ -12,7 +12,7 @@ class Gate extends Equatable{
   final String name;
   final String phoneNumber;
 
-  Gate(this.location, this.name, this.phoneNumber, {this.id = 0.0});
+  Gate({required this.location, required this.name, required this.phoneNumber, this.id = 0.0});
 
   factory Gate.fromJson(Map<String, dynamic> json) =>
       _$GateFromJson(json);

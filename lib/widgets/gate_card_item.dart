@@ -5,7 +5,9 @@ class GateCardItem extends StatelessWidget {
   final VoidCallback onPressed;
   final VoidCallback onLongPressed;
 
-  const GateCardItem({Key? key, required this.onPressed, required this.onLongPressed}) : super(key: key);
+  final String title;
+  final String subtitle;
+  const GateCardItem({Key? key, required this.title, required this.subtitle, required this.onPressed, required this.onLongPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +34,8 @@ class GateCardItem extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  AppTextView( text: "Nirim 4 Gate", style: Theme.of(context).textTheme.bodyText1, textAlign: TextAlign.start, contentPadding: 0,),
-                  AppTextView( text: "054-6567895", style: Theme.of(context).textTheme.bodyText1, textAlign: TextAlign.start, contentPadding: 0,)
+                  AppTextView( text: title, style: Theme.of(context).textTheme.bodyText1, textAlign: TextAlign.start, contentPadding: 0,),
+                  AppTextView( text: subtitle, style: Theme.of(context).textTheme.bodyText1, textAlign: TextAlign.start, contentPadding: 0,)
                 ],
               ),
             )

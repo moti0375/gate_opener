@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 
     <application
@@ -56,6 +57,14 @@
         <receiver
             android:name=".core.activity_detector.ActivityDetectionReceiver"
             android:exported="false" />
+
+        <receiver android:name=".core.BootCompleteReceiver"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter android:priority="500" >
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

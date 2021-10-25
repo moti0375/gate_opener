@@ -12,8 +12,9 @@ class GatesRepositoryImpl @Inject constructor(private val localDatasource: Gates
         return Transformations.map(localDatasource.getAll()) { gate -> gate.map { e -> e.serializeToMap() } }
     }
 
-    override fun addNewGate(gate: Map<String, Any>) {
-        localDatasource.insert(gate.toDataClass())
+    override fun addNewGate(gate: Map<String, Any>) : Map<String, Long> {
+        val result = localDatasource.insert(gate.toDataClass())
+        return mapOf("result" to result)
     }
 
     override fun deleteGate(gate: Map<String, Any>) {

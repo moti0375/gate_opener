@@ -7,14 +7,24 @@ import 'package:mobx/mobx.dart';
 part 'create_or_edit_gate_store.g.dart';
 
 class CreateOrEditStore extends CreateOrEditGateBase with _$CreateOrEditStore{
-  CreateOrEditStore(GateOpenerRepository repository) : super(repository);
+  CreateOrEditStore(GateOpenerRepository repository, Gate? initialGate) : super(repository, initialGate);
 }
 
 abstract class CreateOrEditGateBase with Store {
 
   GateOpenerRepository _repository;
+  Gate? _initialGate;
 
-  CreateOrEditGateBase(this._repository);
+  CreateOrEditGateBase(this._repository, this._initialGate){
+    if(_initialGate != null){
+      setName(_initialGate!.name);
+      setPhoneNumber(_initialGate!.phoneNumber);
+      setLocationChanged(LatLng(_initialGate!.location.latitude, _initialGate!.location.longitude));
+    }
+  }
+
+  @observable
+  CreateOrEditAction? createOrEditAction;
 
   @observable
   LatLng? location;
@@ -28,12 +38,8 @@ abstract class CreateOrEditGateBase with Store {
   @computed
   bool get formValid => _checkFormValidity(location, phoneNumber, name);
 
-  @observable
-  bool saveSuccess = false;
-
   @action
   void setName(String name){
-    print("setName: $name");
     this.name = name;
   }
 
@@ -49,10 +55,23 @@ abstract class CreateOrEditGateBase with Store {
     this.phoneNumber = phoneNumber;
   }
 
+  @action
+  void onSetNameClicked(){
+    createOrEditAction = ShowSetNameDialog(name: this.name);
+  }
+
+  @action
+  void onSetPhoneClicked(){
+    createOrEditAction = ShowEditPhoneDialog(phoneNumber: this.phoneNumber);
+  }
+
   void submit(){
     if(location != null){
       Gate gate =  Gate( location: Location(location!.latitude, location!.longitude), name: name!, phoneNumber: phoneNumber!);
-      _repository.createGate(gate).then((value) => saveSuccess = true);
+      _repository.createGate(gate).then((value) {
+        print("submit: save succeeded");
+        createOrEditAction = OnGateSaved();
+      });
     }
   }
 
@@ -72,6 +91,18 @@ abstract class CreateOrEditGateBase with Store {
   bool _checkLocationValidity(LatLng? location){
     return location != null;
   }
+}
 
+abstract class CreateOrEditAction{}
+class OnGateSaved implements CreateOrEditAction{}
+class ShowSetNameDialog implements CreateOrEditAction{
+  final String? name;
 
+  ShowSetNameDialog({this.name});
+}
+
+class ShowEditPhoneDialog implements CreateOrEditAction{
+  final String? phoneNumber;
+
+  ShowEditPhoneDialog({this.phoneNumber});
 }

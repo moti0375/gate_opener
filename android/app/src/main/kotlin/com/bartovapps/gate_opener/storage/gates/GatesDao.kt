@@ -16,7 +16,7 @@ interface GatesDao {
     fun findById(id: String) : LiveData<Gate>
 
     @Insert
-    fun insertGate(gate: Gate)
+    fun insertGate(gate: Gate) : Long
 
     @Delete
     fun delete(gate: Gate)

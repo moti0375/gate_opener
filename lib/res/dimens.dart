@@ -11,4 +11,7 @@ abstract class Dimens{
 
   static const textHeight = 1.25;
   static const double cornerRadius = 16;
+
+  static const double dialogPadding = 20;
+  static const double avatarRadius = 45;
 }

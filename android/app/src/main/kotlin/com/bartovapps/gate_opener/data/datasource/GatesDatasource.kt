@@ -5,6 +5,6 @@ import com.bartovapps.gate_opener.model.Gate
 
 interface GatesDatasource {
     fun getAll() : LiveData<List<Gate>>
-    fun insert(gate: Gate)
+    fun insert(gate: Gate) : Long
     fun delete(gate: Gate)
 }

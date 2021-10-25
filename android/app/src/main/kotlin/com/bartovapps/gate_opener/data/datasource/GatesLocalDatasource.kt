@@ -11,9 +11,9 @@ class GatesLocalDatasource @Inject constructor(private val gatesDao: GatesDao) :
         return gatesDao.getAll()
     }
 
-    override fun insert(gate: Gate) {
+    override fun insert(gate: Gate) : Long {
         Log.i("GatesLocalDataSource", "insert $gate")
-        gatesDao.insertGate(gate)
+        return gatesDao.insertGate(gate)
     }
 
     override fun delete(gate: Gate) {

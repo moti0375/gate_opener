@@ -80,15 +80,15 @@ class _HomePageState extends State<HomePage> {
                     child: GateCardItem(
                       title: gates[index].name,
                       subtitle: gates[index].phoneNumber,
-                      onPressed: () {},
+                      onPressed: () => navigateToMapPage(initialGate: gates[index]),
                       onLongPressed: () => _showDeleteDialog(gates[index], context),
                     ),
                   )));
   }
 
-  void navigateToMapPage() {
+  void navigateToMapPage({Gate? initialGate}) {
     Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => CreateOrEditGatePage.create()));
+        MaterialPageRoute(builder: (context) => CreateOrEditGatePage.create(initialGate: initialGate)));
   }
 
   Future _showDeleteDialog(Gate gate, BuildContext context) async {

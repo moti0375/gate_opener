@@ -16,40 +16,27 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(private val repository: GatesRepository): ViewModel() {
 
     val gatesMutableLiveData = repository.fetchAllGates()
-
-    init {
-        loadAvailableGates()
-    }
-
-    private fun loadAvailableGates() {
-    }
-
-    private fun executeOperation( operation :() -> Unit){
-        viewModelScope.launch(Dispatchers.IO) {
-            operation()
-        }
-    }
-
-    fun dispatchEvent(event: MainViewModelEvent){
-        when(event){
+    fun dispatchEvent(event: MainViewModelEvent) : Any {
+        return when(event){
             is DeleteGate -> deleteGate(event.params)
             is CreateGate -> createGate(event.params)
         }
     }
 
-    private fun createGate(params: Map<String, Any>) {
+    private  fun createGate(params: Map<String, Any>) : Any {
         Log.i("MainViewModel", "createGate: params: $params")
-        executeOperation { repository.addNewGate(params) }
+        return executeOperation { repository.addNewGate(params) }
     }
 
-    private fun deleteGate(params: Map<String, Any>) {
+    private  fun deleteGate(params: Map<String, Any>) : Any {
         Log.i("MainViewModel", "deleteGate: params: $params")
-        executeOperation { repository.deleteGate(params) }
+        return executeOperation { repository.deleteGate(params) }
     }
 
-    companion object{
-        val gate1 = Gate(name = "Nirim 4 Gate", location = Location(latitude = 34.6, longitude = 32.8), phoneNumber = "0545678765")
-        val gate2 = Gate(name = "Megido airfield", location = Location(latitude = 36.6, longitude = 38.8), phoneNumber = "0525780876")
+    private  fun executeOperation( operation :() -> Any) {
+        viewModelScope.launch(Dispatchers.IO) {
+            operation()
+        }
     }
 }
 

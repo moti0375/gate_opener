@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.Log
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.bartovapps.gate_opener.core.GateOpenerService
 import com.bartovapps.gate_opener.model.serializeToMap
 import dagger.hilt.android.AndroidEntryPoint
@@ -13,6 +14,10 @@ import io.flutter.plugin.common.MethodChannel
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.plugin.common.EventChannel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.suspendCoroutine
 
 private const val TAG = "MainActivity"
 @AndroidEntryPoint
@@ -26,7 +31,6 @@ class MainActivity : FlutterFragmentActivity(), EventChannel.StreamHandler {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         Log.i(TAG, "configureFlutterEngine:")
-
         val event = EventChannel(flutterEngine.dartExecutor.binaryMessenger, EVENT_CHANNEL)
         event.setStreamHandler(this)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, METHOD_CHANNEL).setMethodCallHandler { call, result ->
@@ -34,9 +38,11 @@ class MainActivity : FlutterFragmentActivity(), EventChannel.StreamHandler {
             when (call.method) {
                 "deleteGate" -> {
                     viewModel.dispatchEvent(DeleteGate(params = call.arguments as Map<String, Any>))
+                    result.success(null)
                 }
                 "createGate" -> {
                     viewModel.dispatchEvent(CreateGate(params = call.arguments as Map<String, Any>))
+                    result.success(null)
                 }
                 else -> {
                     result.notImplemented()
@@ -44,6 +50,8 @@ class MainActivity : FlutterFragmentActivity(), EventChannel.StreamHandler {
             }
         }
     }
+
+
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
         Log.i(TAG, "onListen: $events")

@@ -1,21 +1,24 @@
 package com.bartovapps.gate_opener.core
-import com.bartovapps.gate_opener.core.dialer.DialerImpl
+import android.app.AlarmManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import com.bartovapps.gate_opener.core.geofence.GateAlarmReceiver
+import com.bartovapps.gate_opener.core.geofence.GatesGeofenceReceiver
+import com.bartovapps.gate_opener.core.location.LocationHelper
 import com.bartovapps.gate_opener.utils.createAppNotification
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class GateOpenerService : Service() {
 
-    private lateinit var locationHelper : LocationHelper
+    @Inject
+    lateinit var locationHelper : LocationHelper
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if(!this::locationHelper.isInitialized){
-            val caller = DialerImpl(this.applicationContext)
-            locationHelper = LocationHelper(context = this.applicationContext, caller)
-        }
         if (intent == null) {
             stopSelf(startId)
             return START_NOT_STICKY
@@ -36,12 +39,20 @@ class GateOpenerService : Service() {
                 val notification = createAppNotification(context = this.applicationContext)
                 startForeground(FOREGROUND_SERVICE_ID, notification)
                 locationHelper.startListenToLocationUpdates()
+                stopAlarmManager(this.applicationContext)
                 START_STICKY
             }
             else -> {
                 stopSelf() // Stop all the instances
                 START_NOT_STICKY
             }
+        }
+    }
+
+    private fun stopAlarmManager(applicationContext: Context?) {
+        applicationContext?.let {
+            val alarmManager = it.getSystemService(ALARM_SERVICE) as AlarmManager
+            alarmManager.cancel(GateAlarmReceiver.getPendingIntent(it))
         }
     }
 

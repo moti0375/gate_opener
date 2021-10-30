@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.bartovapps.gate_opener">
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -10,7 +11,6 @@
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
 
     <application
        android:name=".App"
@@ -53,10 +53,14 @@
             android:value="2" />
 
         <service android:name=".core.GateOpenerService" />
+        <service android:name=".core.location.LocationForegroundService" />
 
         <receiver
             android:name=".core.activity_detector.ActivityDetectionReceiver"
             android:exported="false" />
+
+        <receiver android:name=".core.geofence.GatesGeofenceReceiver" />
+        <receiver android:name=".core.geofence.GateAlarmReceiver"/>
 
         <receiver android:name=".core.BootCompleteReceiver"
             android:exported="true"
@@ -65,6 +69,12 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove">
+        </provider>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

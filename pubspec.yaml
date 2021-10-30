@@ -36,10 +36,10 @@ dependencies:
   json_serializable: ^4.1.4
   equatable: ^2.0.3
   google_maps_flutter: ^2.0.9
-  location: ^4.3.0
   address_search_field: ^4.0.1
   flutter_mobx: ^2.0.2
   get_it: ^7.2.0
+  geolocator: ^7.7.1
   
 dev_dependencies:
   flutter_test:

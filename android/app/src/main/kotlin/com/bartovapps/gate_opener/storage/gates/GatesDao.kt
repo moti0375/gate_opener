@@ -12,6 +12,9 @@ interface GatesDao {
     @Query("SELECT * FROM gate")
     fun getAll() : LiveData<List<Gate>>
 
+    @Query("SELECT * FROM gate")
+    suspend fun getAllGates() : List<Gate>
+
     @Query("SELECT * FROM gate WHERE id=:id")
     fun findById(id: String) : LiveData<Gate>
 

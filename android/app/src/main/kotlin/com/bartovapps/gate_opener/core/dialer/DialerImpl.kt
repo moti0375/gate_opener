@@ -6,11 +6,12 @@ import android.telecom.TelecomManager
 import android.telecom.PhoneAccount
 import android.util.Log
 import com.bartovapps.gate_opener.utils.PermissionsHelper
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 
 private const val TAG = "Caller"
-class DialerImpl @Inject constructor(private val context: Context) : Dialer {
+class DialerImpl @Inject constructor(@ApplicationContext private val context: Context) : Dialer {
     private val telecomManager = context.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
     @SuppressLint("MissingPermission")
     override fun makeCall(phoneNumber: String) {

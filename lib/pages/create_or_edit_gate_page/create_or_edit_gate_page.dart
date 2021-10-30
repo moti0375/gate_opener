@@ -13,10 +13,10 @@ import 'package:gate_opener/widgets/app_text_view.dart';
 import 'package:gate_opener/widgets/custom_dialog.dart';
 import 'package:gate_opener/widgets/designed_button.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 import 'package:gate_opener/pages/create_or_edit_gate_page/create_or_edit_gate_store.dart';
 import 'package:provider/provider.dart';
 import 'package:mobx/mobx.dart';
+import 'package:geolocator/geolocator.dart';
 
 class CreateOrEditGatePage extends StatefulWidget {
   final CreateOrEditStore store;
@@ -38,8 +38,9 @@ class CreateOrEditGatePage extends StatefulWidget {
 }
 
 class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
-  Location location = new Location();
   bool _serviceEnabled = false;
+  final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
+
   Completer<GoogleMapController> _controller = Completer();
   late GoogleMapController _googleMapController;
   double currentZoom = 15;
@@ -128,12 +129,58 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
   }
 
   void _initializeMap() async {
-    _serviceEnabled = await location.serviceEnabled();
-    if (_serviceEnabled) {
-      LocationData locationData = await location.getLocation();
+    Position? locationData = await _getCurrentPosition();
+    if(locationData != null){
       _moveMapToPosition(
-          LatLng(locationData.latitude!, locationData.longitude!), currentZoom);
+          LatLng(locationData.latitude, locationData.longitude), currentZoom);
     }
+  }
+
+  Future<Position?> _getCurrentPosition() async {
+    final hasPermission = await _handlePermission();
+
+    if (!hasPermission) {
+      return null;
+    }
+
+    final position = await _geolocatorPlatform.getCurrentPosition();
+    return position;
+  }
+
+  Future<bool> _handlePermission() async {
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    _serviceEnabled = await _geolocatorPlatform.isLocationServiceEnabled();
+    if (!_serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+
+      return false;
+    }
+
+    permission = await _geolocatorPlatform.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await _geolocatorPlatform.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return false;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return false;
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return true;
   }
 
   void _onMapClicked(LatLng latLng) {

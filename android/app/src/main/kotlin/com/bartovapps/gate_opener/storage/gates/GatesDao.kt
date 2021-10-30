@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import com.bartovapps.gate_opener.model.Gate
 
@@ -18,7 +19,7 @@ interface GatesDao {
     @Query("SELECT * FROM gate WHERE id=:id")
     fun findById(id: String) : LiveData<Gate>
 
-    @Insert
+    @Insert(onConflict = REPLACE)
     fun insertGate(gate: Gate) : Long
 
     @Delete

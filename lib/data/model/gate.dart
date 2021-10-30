@@ -7,12 +7,12 @@ part 'gate.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Gate extends Equatable{
-  final double id;
+  final double? id;
   final Location location;
   final String name;
   final String phoneNumber;
 
-  Gate({required this.location, required this.name, required this.phoneNumber, this.id = 0.0});
+  Gate({required this.location, required this.name, required this.phoneNumber, this.id});
 
   factory Gate.fromJson(Map<String, dynamic> json) =>
       _$GateFromJson(json);

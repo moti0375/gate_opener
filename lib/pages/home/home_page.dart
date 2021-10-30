@@ -105,7 +105,7 @@ class _HomePageState extends State<HomePage> {
                   height: 40,
                   text: "Yes",
                   onPressed: () {
-                    context.read<HomePageBloc>().add(DeleteGate(gate.id));
+                    context.read<HomePageBloc>().add(DeleteGate(gate.id!));
                     Navigator.of(context).pop();
                   }
                       ,

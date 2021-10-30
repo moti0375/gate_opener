@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:gate_opener/data/model/gate.dart';
 import 'package:gate_opener/data/model/location.dart';
 import 'package:gate_opener/data/repository/gate_opener_repository.dart';
@@ -23,11 +25,15 @@ abstract class CreateOrEditGateBase with Store {
     }
   }
 
+
   @observable
   CreateOrEditAction? createOrEditAction;
 
   @observable
   LatLng? location;
+
+  @observable
+  Set<Marker> markers = HashSet();
 
   @observable
   String? phoneNumber;
@@ -44,9 +50,26 @@ abstract class CreateOrEditGateBase with Store {
   }
 
   @action
-  void setLocationChanged(LatLng position){
+  void initializeMap(LatLng initializeLocation){
+    if(_initialGate == null){
+      setLocationChanged(initializeLocation, justLocation: true);
+    }
+  }
+
+  @action
+  void setLocationChanged(LatLng position, {bool justLocation = false}){
     print("setLocationChanged: $position");
     this.location = position;
+    if(!justLocation){
+      _updateGateMarker(position);
+    }
+    createOrEditAction = OnLocationUpdated(position: position);
+  }
+
+  void _updateGateMarker(LatLng position) {
+    Marker marker = Marker(markerId: MarkerId("GateMarker"), position: position);
+    markers.clear();
+    markers.add(marker);
   }
 
   @action
@@ -67,7 +90,7 @@ abstract class CreateOrEditGateBase with Store {
 
   void submit(){
     if(location != null){
-      Gate gate =  Gate( location: Location(location!.latitude, location!.longitude), name: name!, phoneNumber: phoneNumber!);
+      Gate gate =  Gate(id: _initialGate?.id, location: Location(location!.latitude, location!.longitude), name: name!, phoneNumber: phoneNumber!);
       _repository.createGate(gate).then((value) {
         print("submit: save succeeded");
         createOrEditAction = OnGateSaved();
@@ -91,6 +114,7 @@ abstract class CreateOrEditGateBase with Store {
   bool _checkLocationValidity(LatLng? location){
     return location != null;
   }
+
 }
 
 abstract class CreateOrEditAction{}
@@ -105,4 +129,8 @@ class ShowEditPhoneDialog implements CreateOrEditAction{
   final String? phoneNumber;
 
   ShowEditPhoneDialog({this.phoneNumber});
+}
+class OnLocationUpdated implements CreateOrEditAction{
+  final LatLng position;
+  OnLocationUpdated({required this.position});
 }

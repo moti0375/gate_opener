@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,7 +27,8 @@ class CreateOrEditGatePage extends StatefulWidget {
 
   static Widget create({Gate? initialGate}) {
     return Provider<CreateOrEditStore>(
-      create: (_) => CreateOrEditStore(locator<GateOpenerRepository>(), initialGate),
+      create: (_) =>
+          CreateOrEditStore(locator<GateOpenerRepository>(), initialGate),
       child: Consumer<CreateOrEditStore>(
           builder: (context, store, child) => CreateOrEditGatePage(
                 store: store,
@@ -45,12 +45,6 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
   late GoogleMapController _googleMapController;
   double currentZoom = 15;
   ReactionDisposer? mobxDispose;
-  CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(0, 0),
-    zoom: 15,
-  );
-
-  Set<Marker> markers = HashSet();
 
   @override
   void initState() {
@@ -61,8 +55,8 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    mobxDispose ??=
-        reaction((_) => widget.store.createOrEditAction, (CreateOrEditAction? value) => _handleActionChange(value));
+    mobxDispose ??= reaction((_) => widget.store.createOrEditAction,
+        (CreateOrEditAction? value) => _handleActionChange(value));
   }
 
   @override
@@ -86,20 +80,25 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
           children: [
             SizedBox(
               height: MediaQuery.of(context).size.height * 1 / 3,
-              child: ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-                child: GoogleMap(
-                  markers: markers,
-                  onTap: _onMapClicked,
-                  mapType: MapType.normal,
-                  myLocationButtonEnabled: true,
-                  myLocationEnabled: true,
-                  initialCameraPosition: _kGooglePlex,
-                  onMapCreated: (GoogleMapController controller) {
-                    _controller.complete(controller);
-                    _googleMapController = controller;
-                  },
-                  onCameraMove: _onCameraMoved,
+              child: Observer(
+                builder: (_) => ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                  child: GoogleMap(
+                    markers: widget.store.markers,
+                    onTap: _onMapClicked,
+                    mapType: MapType.normal,
+                    myLocationButtonEnabled: true,
+                    myLocationEnabled: true,
+                    initialCameraPosition: CameraPosition(
+                        target: widget.store.location ??= LatLng(0, 0),
+                        zoom: 15
+                    ),
+                    onMapCreated: (GoogleMapController controller) {
+                      _controller.complete(controller);
+                      _googleMapController = controller;
+                    },
+                    onCameraMove: _onCameraMoved,
+                  ),
                 ),
               ),
             ),
@@ -130,9 +129,11 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
 
   void _initializeMap() async {
     Position? locationData = await _getCurrentPosition();
-    if(locationData != null){
-      _moveMapToPosition(
-          LatLng(locationData.latitude, locationData.longitude), currentZoom);
+    if (locationData != null) {
+      widget.store.initializeMap(LatLng(locationData.latitude, locationData.longitude));
+      //widget.store.setLocationChanged(LatLng(locationData.latitude, locationData.longitude));
+      // _moveMapToPosition(
+      //     LatLng(locationData.latitude, locationData.longitude), currentZoom);
     }
   }
 
@@ -184,13 +185,6 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
   }
 
   void _onMapClicked(LatLng latLng) {
-    setState(() {
-      Marker marker =
-          Marker(markerId: MarkerId("GateMarker"), position: latLng);
-      markers.clear();
-      markers.add(marker);
-    });
-    _moveMapToPosition(latLng, currentZoom);
     widget.store.setLocationChanged(latLng);
   }
 
@@ -254,14 +248,13 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
             height: 16,
           ),
           AppTextView(
-            text: widget.store.name,
-            rightIcon: Icon(
-              Icons.create,
-              size: 50,
-            ),
-            style: Theme.of(context).textTheme.headline6,
-            onRightIconClicked: () => widget.store.onSetNameClicked()
-          ),
+              text: widget.store.name,
+              rightIcon: Icon(
+                Icons.create,
+                size: 50,
+              ),
+              style: Theme.of(context).textTheme.headline6,
+              onRightIconClicked: () => widget.store.onSetNameClicked()),
           SizedBox(
             height: 16,
           ),
@@ -286,7 +279,7 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
   void _showDialog(BuildContext context,
       {required String title,
       required String description,
-        String? initialValue,
+      String? initialValue,
       Widget? icon,
       required ValueChanged onSubmitted,
       TextInputType inputType = TextInputType.text}) async {
@@ -302,41 +295,48 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
             ));
   }
 
-
-
   void _handleActionChange(CreateOrEditAction? action) {
-    switch(action.runtimeType){
-      case OnGateSaved: {
-        print("GateSaved: ");
-        _onSaveDone();
-        break;
-      }
-      case ShowSetNameDialog: {
-        print("ShowSetNameDialog: ${(action as ShowSetNameDialog).name}");
-        _showDialog(context,
-            initialValue: action.name,
-            title: "Edit name",
-            description: "Enter gate name",
-            icon: Icon(
-              Icons.description,
-              size: 50,
-            ), onSubmitted: (text) {
-              print("onSubmitted: $text");
-              widget.store.setName(text);
-            });
-        break;
-      }
-      case ShowEditPhoneDialog: {
-        _showDialog(context,
-            title: "Edit Phone",
-            description: "Enter gate phone number",
-            icon: Icon(
-              Icons.phone,
-              size: 50,
-            ),
-            onSubmitted: (text) => widget.store.setPhoneNumber(text),
-            inputType: TextInputType.phone);
-      }
+    switch (action.runtimeType) {
+      case OnGateSaved:
+        {
+          print("GateSaved: ");
+          _onSaveDone();
+          break;
+        }
+      case OnLocationUpdated:
+        {
+          _moveMapToPosition(
+              (action as OnLocationUpdated).position, currentZoom);
+          break;
+        }
+      case ShowSetNameDialog:
+        {
+          print("ShowSetNameDialog: ${(action as ShowSetNameDialog).name}");
+          _showDialog(context,
+              initialValue: action.name,
+              title: "Edit name",
+              description: "Enter gate name",
+              icon: Icon(
+                Icons.description,
+                size: 50,
+              ), onSubmitted: (text) {
+            print("onSubmitted: $text");
+            widget.store.setName(text);
+          });
+          break;
+        }
+      case ShowEditPhoneDialog:
+        {
+          _showDialog(context,
+              title: "Edit Phone",
+              description: "Enter gate phone number",
+              icon: Icon(
+                Icons.phone,
+                size: 50,
+              ),
+              onSubmitted: (text) => widget.store.setPhoneNumber(text),
+              inputType: TextInputType.phone);
+        }
     }
   }
 }

@@ -1,15 +1,18 @@
 package com.bartovapps.gate_opener.core.location
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.app.NotificationManager
+import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.bartovapps.gate_opener.utils.PermissionsHelper
 import com.bartovapps.gate_opener.core.GateOpenerService.Companion.FOREGROUND_SERVICE_ID
 import com.bartovapps.gate_opener.core.dialer.Dialer
+import com.bartovapps.gate_opener.core.manager.GateOpenerManager
 import com.bartovapps.gate_opener.model.ActivityState
 import com.bartovapps.gate_opener.model.Gate
 import com.bartovapps.gate_opener.storage.gates.GatesDao
@@ -24,13 +27,18 @@ import javax.inject.Inject
 
 private const val TAG = "com.bartovapps.gate_opener.core.LocationHelper"
 
-class LocationHelper @Inject constructor(@ApplicationContext private val context: Context, private val caller: Dialer, private val dao: GatesDao) : LocationListener {
+class LocationHelper @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val caller: Dialer,
+    private val dao: GatesDao,
+    private val gateOpenerManager: GateOpenerManager
+) : LocationListener {
     private val locationManager: LocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
     private val mNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private var insideGeofence = true
     private var activityState = ActivityState.STATIONARY
-    private var closestGate : Gate? = null
+    private var closestGate: Gate? = null
     private val availableGates = mutableListOf<Gate>()
 
     init {
@@ -44,68 +52,68 @@ class LocationHelper @Inject constructor(@ApplicationContext private val context
         }
     }
 
-//    private val gateLocation = Location("Gate").apply {
-//        latitude = 31.969825161735752
-//        longitude = 34.82419797890718
-//    }
-
     @SuppressLint("MissingPermission")
     fun startListenToLocationUpdates() {
-        if(PermissionsHelper.isLocationGranted(context)){
+        if (PermissionsHelper.isLocationGranted(context)) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 2.0f, this)
         }
     }
 
-    private fun stopListenToLocationUpdates() {
+    fun stopListenToLocationUpdates() {
         locationManager.removeUpdates(this)
+        gateOpenerManager.onExitNearestGateZone()
     }
 
+
     override fun onLocationChanged(location: Location) {
-        checkClosestGateDistance(location = location)
+        updateClosestGate(location = location)
         processLocation(location)
     }
 
 
-    private fun checkClosestGateDistance(location: Location) {
-        val closestGate: Pair<Gate, Float>? = location.let { lastLocation ->
-            availableGates.map {
-                Pair(it, Location("Gate").apply {
-                    latitude = it.location.latitude
-                    longitude = it.location.longitude
-                }.distanceTo(lastLocation))
-            }.minByOrNull {
-                it.second
-            }
-        }
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+    override fun onProviderDisabled(provider: String) {}
+    override fun onProviderEnabled(provider: String) {}
+
+    private fun updateClosestGate(location: Location) {
+        this.closestGate = gateOpenerManager.getNearestGate(location)?.first
         Log.i(TAG, "Closest gate: $closestGate")
-        this.closestGate = closestGate?.first
     }
 
     private fun processLocation(location: Location) {
         Log.i(TAG, "process: location: accuracy: ${location.accuracy}, speed: ${location.speed}")
         if (location.hasAccuracy() && location.hasSpeed()) {
-            if (location.accuracy < 15 && location.speed > kmhToMsec(20)) {
-                    closestGate?.let {
-                        val gateLocation = Location("Gate").apply {
-                            latitude = it.location.latitude
-                            longitude = it.location.longitude
-                        }
-                        updateNotification("Driving.. distance to ${it.name}: ${location.distanceTo(gateLocation)}m")
-                        insideGeofence = if (location.distanceTo(gateLocation) < 50) {
-                            if (!insideGeofence) {
-                                stopListenToLocationUpdates()
-                                updateNotification("Getting close to: ${it.name}")
-                                makeCall(it)
-                            }
-                            true
-                        } else {
-                            if (insideGeofence) {
-                                updateNotification("Exit area")
-                            }
-                            false
-                        }
-                    }
+            closestGate?.let {
+                val gateLocation = Location("Gate").apply {
+                    latitude = it.location.latitude
+                    longitude = it.location.longitude
+                }
+                val distance = location.distanceTo(gateLocation)
 
+                if (distance > 1250) { //It means we're leaving the nearest gate..
+                    stopListenToLocationUpdates()
+                    return
+                }
+
+                if (location.accuracy <= 25 && location.speed >= kmhToMsec(15) && location.speed <= kmhToMsec(45)) {
+                    insideGeofence = if (distance < 50) {
+                        if (!insideGeofence) { //Entered near gate!! Open it!!
+                            makeCall(it)
+                            locationManager.removeUpdates(this)
+                            gateOpenerManager.onReachedDestination()
+                        } else {
+                            updateNotification("Reaching: ${it.name} in ${distance}m")
+                        }
+                        true
+                    } else {
+                        if (insideGeofence) {
+                            updateNotification("Around ${it.name}")
+                        }
+                        false
+                    }
+                } else {
+                    updateNotification("Driving to ${it.name}: - ${distance}m")
+                }
             }
         } else if (location.speed == 0.0f) {
             updateActivityState(ActivityState.STATIONARY)
@@ -118,7 +126,8 @@ class LocationHelper @Inject constructor(@ApplicationContext private val context
             when (activityState) {
                 ActivityState.STATIONARY -> updateNotification("Standing still..")
                 ActivityState.DRIVING -> updateNotification("Driving..")
-                else -> {}
+                else -> {
+                }
             }
         }
 

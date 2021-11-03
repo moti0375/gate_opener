@@ -1,7 +1,6 @@
 package com.bartovapps.gate_opener.core.location
 
 import android.annotation.SuppressLint
-import android.app.AlarmManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -9,10 +8,11 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import com.bartovapps.gate_opener.core.GateOpenerService
-import com.bartovapps.gate_opener.core.geofence.GateAlarmReceiver
+import com.bartovapps.gate_opener.core.manager.GateOpenerManager
 import com.bartovapps.gate_opener.model.Gate
 import com.bartovapps.gate_opener.storage.gates.GatesDao
 import com.bartovapps.gate_opener.utils.PermissionsHelper
@@ -29,7 +29,7 @@ class LocationForegroundService : Service(), LocationListener {
     @Inject
     lateinit var locationManager : LocationManager
     @Inject
-    lateinit var alarmManager: AlarmManager
+    lateinit var gateOpenerManager: GateOpenerManager
 
     @Inject
     lateinit var dao: GatesDao
@@ -67,7 +67,7 @@ class LocationForegroundService : Service(), LocationListener {
     @SuppressLint("MissingPermission")
     private fun startLocationListener(context: Context) {
         if(PermissionsHelper.isLocationGranted(context)){
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 2.0f, this)
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10.0f, this)
         }
     }
 
@@ -82,6 +82,31 @@ class LocationForegroundService : Service(), LocationListener {
 
     private fun stopLocationListener() {
         locationManager.removeUpdates(this)
+    }
+
+
+    override fun onLocationChanged(location: Location) {
+        Log.i(TAG, "onLocationChanged: $location")
+        checkForClosestGate(location)
+    }
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+
+
+    override fun onProviderEnabled(provider: String) {}
+    override fun onProviderDisabled(provider: String) {}
+
+    private fun checkForClosestGate(location: Location) {
+        CoroutineScope(Dispatchers.IO).launch {
+           val closestGate = gateOpenerManager.getNearestGate(location)
+            Log.i(TAG, "checkForClosestGate: ${closestGate}")
+            closestGate?.let {
+                if(it.second < 1000) {
+                    gateOpenerManager.onGettingCloseToNearGate()
+                }
+            }
+            stopSelf()
+        }
     }
 
     companion object{
@@ -108,30 +133,4 @@ class LocationForegroundService : Service(), LocationListener {
         }
     }
 
-    override fun onLocationChanged(location: Location) {
-        Log.i(TAG, "onLocationChanged: $location")
-        checkForClosestGate(location, this)
-    }
-
-    private fun checkForClosestGate(location: Location, context: Context) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val gates = dao.getAllGates()
-            val closestGate: Pair<Gate, Float>? = gates.map {
-                Pair(it, Location("gate").apply {
-                    latitude = it.location.latitude
-                    longitude = it.location.longitude
-                }.distanceTo(location))
-            }.minByOrNull {
-                it.second
-            }
-            Log.i(TAG, "checkForClosestGate: ${closestGate}")
-            closestGate?.let {
-                if(it.second < 500){
-                    GateOpenerService.sendStartIntent(context)
-                    alarmManager.cancel(GateAlarmReceiver.getPendingIntent(context))
-                }
-            }
-        }
-        stopSelf()
-    }
 }

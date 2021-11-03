@@ -8,10 +8,11 @@ import com.bartovapps.gate_opener.core.activators.Activator
 import com.bartovapps.gate_opener.core.activators.AlarmManagerActivator
 import com.bartovapps.gate_opener.core.activity_detector.ActivityDetectionProcessor
 import com.bartovapps.gate_opener.core.activity_detector.ActivityDetectionProcessorImpl
-import com.bartovapps.gate_opener.core.activity_detector.ActivityDetector
 import com.bartovapps.gate_opener.core.activity_detector.ActivityDetectorImpl
 import com.bartovapps.gate_opener.core.dialer.Dialer
 import com.bartovapps.gate_opener.core.dialer.DialerImpl
+import com.bartovapps.gate_opener.core.manager.GateOpenerManager
+import com.bartovapps.gate_opener.core.manager.GateOpenerManagerImpl
 import com.bartovapps.gate_opener.data.datasource.GatesDatasource
 import com.bartovapps.gate_opener.data.datasource.GatesLocalDatasource
 import com.bartovapps.gate_opener.data.repository.GatesRepository
@@ -37,7 +38,8 @@ abstract class AppModule {
     abstract fun bindsActivitiesDetectionProcessor(processorImpl: ActivityDetectionProcessorImpl) : ActivityDetectionProcessor
 
     @Binds
-    abstract fun bindsActivityDetector(processorImpl: ActivityDetectorImpl) : ActivityDetector
+    @QActivityDetectorActivator
+    abstract fun bindsActivityDetector(processorImpl: ActivityDetectorImpl) : Activator
 
     @Binds
     abstract fun bindGatesLocalDatasource(gatesLocalDatasource: GatesLocalDatasource) : GatesDatasource
@@ -48,6 +50,9 @@ abstract class AppModule {
     @Binds
     @QAlarmManagerActivator
     abstract fun bindAlarmManagerActivator(alarmManagerActivator: AlarmManagerActivator) : Activator
+
+    @Binds
+    abstract fun bindGateOpenerManager(gateOpenerManagerImpl: GateOpenerManagerImpl) : GateOpenerManager
 
     companion object{
         @Provides

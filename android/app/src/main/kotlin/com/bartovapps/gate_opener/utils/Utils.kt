@@ -2,7 +2,6 @@ package com.bartovapps.gate_opener.utils
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.NotificationManager.IMPORTANCE_MIN
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -37,10 +36,9 @@ internal fun createAppNotification(context: Context): Notification {
     return builderCompat.build()
 }
 
-
 private fun createNotificationChannel(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channel = NotificationChannel(FG_CHANNEL, FG_CHANNEL, IMPORTANCE_MIN)
+        val channel = NotificationChannel(FG_CHANNEL, FG_CHANNEL, NotificationManager.IMPORTANCE_DEFAULT)
         channel.description = FG_CHANNEL
         channel.enableLights(false)
         channel.enableVibration(false)

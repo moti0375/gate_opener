@@ -17,16 +17,16 @@ class ActivityDetectionProcessorImpl @Inject constructor(
 
     override fun onActivitiesDetected(detectedActivities: List<DetectedActivity>) {
         val detectedActivity: DetectedActivity? = detectedActivities.firstOrNull { act -> act.confidence > 75 }
-        Log.i(TAG, "processDetectedActivities: $detectedActivity")
-//        started = if(detectedActivity?.type == STILL){
-//            if(!started){
-//                handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-//            }
-//            true
-//        } else {
-//            gateOpenerManager.onExitVehicle()
-//            false
-//        }
+        Log.i(TAG, "processDetectedActivities: $detectedActivity, started: $started")
+        started = if(detectedActivity?.type == STILL){
+            if(!started){
+                handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+            }
+            true
+        } else {
+            handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+            false
+        }
     }
 
     override fun onActivityTransition(transitionResult: ActivityTransitionResult?) {
@@ -35,8 +35,8 @@ class ActivityDetectionProcessorImpl @Inject constructor(
             when (it.activityType) {
                 IN_VEHICLE -> handleVehicleTransitionChange(it.transitionType)
                 else -> {
-                    if(it.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER){ //Starting other activity other than vehicle
-                        gateOpenerManager.onExitVehicle()
+                    if(it.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER) { //Starting activity other than vehicle
+                        handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
                     }
                 }
             }
@@ -44,11 +44,11 @@ class ActivityDetectionProcessorImpl @Inject constructor(
     }
 
     private fun handleVehicleTransitionChange(transitionType: Int) {
-        Log.i(TAG, "handleVehicleTransitionChange: Entered vehicle: ")
         if(transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER){
             Log.i(TAG, "handleVehicleTransitionChange: Entered vehicle: ")
             gateOpenerManager.onEnteredVehicle() //Starting everything..
         } else {
+            Log.i(TAG, "handleVehicleTransitionChange: Exit vehicle: ")
             gateOpenerManager.onExitVehicle() //Out of car, stop all services!
         }
 

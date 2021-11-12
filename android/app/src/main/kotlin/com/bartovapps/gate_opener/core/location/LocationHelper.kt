@@ -6,9 +6,11 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.app.NotificationManager
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.bartovapps.gate_opener.R
 import com.bartovapps.gate_opener.utils.PermissionsHelper
 import com.bartovapps.gate_opener.core.GateOpenerService.Companion.FOREGROUND_SERVICE_ID
 import com.bartovapps.gate_opener.core.dialer.Dialer
@@ -115,27 +117,13 @@ class LocationHelper @Inject constructor(
                     updateNotification("Driving to ${it.name}: - ${distance}m")
                 }
             }
-        } else if (location.speed == 0.0f) {
-            updateActivityState(ActivityState.STATIONARY)
         }
-    }
-
-    private fun updateActivityState(activityState: ActivityState) {
-        if (activityState != this.activityState) {
-            this.activityState
-            when (activityState) {
-                ActivityState.STATIONARY -> updateNotification("Standing still..")
-                ActivityState.DRIVING -> updateNotification("Driving..")
-                else -> {
-                }
-            }
-        }
-
     }
 
     private fun updateNotification(message: String) {
         val builder = NotificationCompat.Builder(context, FG_CHANNEL)
-            .setSmallIcon(com.bartovapps.gate_opener.R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_parking_barrier)
+            .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_parking_barrier))
             .setContentText(message)
         mNotificationManager.notify(FOREGROUND_SERVICE_ID, builder.build())
     }

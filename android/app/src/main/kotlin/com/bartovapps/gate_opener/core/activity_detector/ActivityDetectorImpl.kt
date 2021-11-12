@@ -1,11 +1,11 @@
 package com.bartovapps.gate_opener.core.activity_detector
 import android.app.PendingIntent
-import android.app.PendingIntent.*
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import com.bartovapps.gate_opener.core.activators.Activator
-import com.bartovapps.gate_opener.storage.gates.GatesDao
+import com.bartovapps.gate_opener.utils.pIntentFlag
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
@@ -19,25 +19,15 @@ private val INTERESTING_TRANSITION = intArrayOf(
     DetectedActivity.IN_VEHICLE,
     DetectedActivity.STILL,
     DetectedActivity.ON_FOOT,
+    DetectedActivity.WALKING,
 )
 
 @Singleton
-class ActivityDetectorImpl @Inject constructor(@ApplicationContext context: Context, dao: GatesDao) : Activator {
+class ActivityDetectorImpl @Inject constructor(@ApplicationContext context: Context) : Activator {
     private val mActivityRecognitionClient = ActivityRecognition.getClient(context)
     private val intent: Intent = Intent(context, ActivityDetectionReceiver::class.java)
-    private val mActivityTransitionPendingIntent = getBroadcast(context, 1, intent, FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
-
-    init {
-        Log.i(TAG, "init: ")
-        dao.getAll().observeForever {
-            if(it.isNotEmpty()){
-                activate()
-            } else {
-                deactivate()
-            }
-        }
-    }
-
+    private val mActivityTransitionPendingIntent = PendingIntent.getBroadcast(context, 1, intent, pIntentFlag)
+    
 
     override fun activate() {
         Log.i(TAG, "activate: ")
@@ -61,8 +51,8 @@ class ActivityDetectorImpl @Inject constructor(@ApplicationContext context: Cont
         val request = ActivityTransitionRequest(transitions)
         val transitionTask: Task<Void> = mActivityRecognitionClient.requestActivityTransitionUpdates(request, mActivityTransitionPendingIntent)
         val task: Task<Void> = mActivityRecognitionClient.requestActivityUpdates(ACTIVITY_UPDATES_INTERVAL, mActivityTransitionPendingIntent)
-        task.addOnSuccessListener { Log.i("ActivityManager", "com.bartovapps.gate_opener.core.activity_detector.ActivityDetector sensor started successfully") }
-        task.addOnFailureListener { e -> Log.e("ActivityManager", "com.bartovapps.gate_opener.core.activity_detector.ActivityDetector sensor failed to start: ${e.message}") }
+        task.addOnSuccessListener { Log.i("ActivityManager", "ActivityDetector sensor started successfully") }
+        task.addOnFailureListener { e -> Log.e("ActivityManager", "ActivityDetector sensor failed to start: ${e.message}") }
         transitionTask.addOnSuccessListener {
             Log.i("ActivityManager", "Transition sensor started successfully")
         }

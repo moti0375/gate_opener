@@ -3,6 +3,7 @@ package com.bartovapps.gate_opener.core.manager
 import android.content.Context
 import android.content.Intent
 import android.location.Location
+import android.util.Log
 import com.bartovapps.gate_opener.core.GateOpenerService
 import com.bartovapps.gate_opener.core.activators.Activator
 import com.bartovapps.gate_opener.core.location.LocationForegroundService
@@ -69,6 +70,7 @@ class GateOpenerManagerImpl @Inject constructor(
     }
 
     override fun onExitVehicle() {
+        Log.i(TAG, "onExitVehicle: stop everything!!")
         stopAlarmManager()
         stopForegroundService()
         stopGateOpenerService()
@@ -102,4 +104,7 @@ class GateOpenerManagerImpl @Inject constructor(
     }
 
 
+    companion object{
+        private const val TAG = "GateOpenerMangaer"
+    }
 }

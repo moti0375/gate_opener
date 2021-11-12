@@ -50,6 +50,7 @@ class GateOpenerService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.i("GateOpenerService", "onDestroy: ")
         locationHelper.stopListenToLocationUpdates()
     }
 

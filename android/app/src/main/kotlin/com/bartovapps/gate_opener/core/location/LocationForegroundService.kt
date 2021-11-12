@@ -49,6 +49,7 @@ class LocationForegroundService : Service(), LocationListener {
     }
 
     private fun handleStartCommand(action: String) : Int{
+        Log.i(TAG, "handleStartCommand: action: $action")
         return when (action) {
             ACTION_START -> {
                 val notification = createAppNotification(context = this.applicationContext)
@@ -57,8 +58,8 @@ class LocationForegroundService : Service(), LocationListener {
                 START_STICKY
             }
             else -> {
-                stopSelf() // Stop all the instances
                 stopLocationListener()
+                stopSelf() // Stop all the instances
                 START_NOT_STICKY
             }
         }
@@ -77,6 +78,7 @@ class LocationForegroundService : Service(), LocationListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.i(TAG, "onDestroy: ")
         stopLocationListener()
     }
 
@@ -132,5 +134,4 @@ class LocationForegroundService : Service(), LocationListener {
             }
         }
     }
-
 }

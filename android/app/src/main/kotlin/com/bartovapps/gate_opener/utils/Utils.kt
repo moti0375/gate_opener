@@ -51,7 +51,7 @@ private fun createNotificationChannel(context: Context) {
     }
 }
 
-val pIntentFlag = if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S){ PendingIntent.FLAG_UPDATE_CURRENT} else {
+val pIntentFlag = if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S) { PendingIntent.FLAG_UPDATE_CURRENT} else {
     PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
 }
 

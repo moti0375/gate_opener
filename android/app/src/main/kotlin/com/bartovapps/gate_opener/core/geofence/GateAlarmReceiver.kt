@@ -18,7 +18,7 @@ class GateAlarmReceiver : BroadcastReceiver() {
         private const val TAG = "GateAlarmReceiver"
         fun getPendingIntent(context: Context): PendingIntent {
             val intent = Intent(context, GateAlarmReceiver::class.java)
-            return PendingIntent.getBroadcast(context, 0, intent, pIntentFlag)
+            return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         }
     }
 }

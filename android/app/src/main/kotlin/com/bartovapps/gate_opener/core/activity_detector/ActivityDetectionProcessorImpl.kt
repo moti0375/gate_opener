@@ -17,16 +17,16 @@ class ActivityDetectionProcessorImpl @Inject constructor(
 
     override fun onActivitiesDetected(detectedActivities: List<DetectedActivity>) {
         val detectedActivity: DetectedActivity? = detectedActivities.firstOrNull { act -> act.confidence > 75 }
-//        Log.i(TAG, "processDetectedActivities: $detectedActivity, started: $started")
-//        started = if(detectedActivity?.type == STILL){
-//            if(!started){
-//                handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-//            }
-//            true
-//        } else {
-//            handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-//            false
-//        }
+        Log.i(TAG, "processDetectedActivities: $detectedActivity, started: $started")
+        started = if(detectedActivity?.type == STILL){
+            if(!started){
+                handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+            }
+            true
+        } else {
+            handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+            false
+        }
     }
 
     override fun onActivityTransition(transitionResult: ActivityTransitionResult?) {

@@ -26,7 +26,7 @@ private val INTERESTING_TRANSITION = intArrayOf(
 class ActivityDetectorImpl @Inject constructor(@ApplicationContext context: Context) : Activator {
     private val mActivityRecognitionClient = ActivityRecognition.getClient(context)
     private val intent: Intent = Intent(context, ActivityDetectionReceiver::class.java)
-    private val mActivityTransitionPendingIntent = PendingIntent.getBroadcast(context, 1, intent, pIntentFlag)
+    private val mActivityTransitionPendingIntent = PendingIntent.getBroadcast(context, 1, intent, PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
     
 
     override fun activate() {
@@ -67,6 +67,6 @@ class ActivityDetectorImpl @Inject constructor(@ApplicationContext context: Cont
 
     companion object{
         private const val TAG = "ActivityDetector"
-        private const val ACTIVITY_UPDATES_INTERVAL = 1000L
+        private const val ACTIVITY_UPDATES_INTERVAL = 5000L
     }
 }

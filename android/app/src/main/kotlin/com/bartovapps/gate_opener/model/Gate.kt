@@ -1,5 +1,7 @@
 package com.bartovapps.gate_opener.model
 
+import android.os.Bundle
+import androidx.core.os.bundleOf
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -12,7 +14,11 @@ val gson = Gson()
 data class Location(val latitude: Double, val longitude: Double)
 
 @Entity
-data class Gate(@PrimaryKey(autoGenerate = true) val id: Int = 0, val name: String, val location: Location, @ColumnInfo(name = "phone_number") val phoneNumber: String)
+data class Gate(@PrimaryKey(autoGenerate = true) val id: Int = 0, val name: String, val location: Location, @ColumnInfo(name = "phone_number") val phoneNumber: String){
+    fun toBundle() :Bundle{
+        return bundleOf("name" to name, "location" to location.toString())
+    }
+}
 fun <T> T.serializeToMap(): Map<String, Any> {
     return convert()
 }

@@ -8,13 +8,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "22.0.0"
-  address_search_field:
-    dependency: "direct main"
-    description:
-      name: address_search_field
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "4.0.1"
   analyzer:
     dependency: transitive
     description:

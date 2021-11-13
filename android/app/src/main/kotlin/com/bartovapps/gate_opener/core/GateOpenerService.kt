@@ -33,13 +33,12 @@ class GateOpenerService : Service() {
     }
 
     private fun handleStartCommand(action: String): Int {
-        Log.i("com.bartovapps.gate_opener.core.GateOpenerService", "handleStartCommand: action: $action")
+        Log.i("GateOpenerService", "handleStartCommand: action: $action")
         return when (action) {
             ACTION_START -> {
                 val notification = createAppNotification(context = this.applicationContext)
                 startForeground(FOREGROUND_SERVICE_ID, notification)
                 locationHelper.startListenToLocationUpdates()
-                stopAlarmManager(this.applicationContext)
                 START_STICKY
             }
             else -> {
@@ -49,13 +48,11 @@ class GateOpenerService : Service() {
         }
     }
 
-    private fun stopAlarmManager(applicationContext: Context?) {
-        applicationContext?.let {
-            val alarmManager = it.getSystemService(ALARM_SERVICE) as AlarmManager
-            alarmManager.cancel(GateAlarmReceiver.getPendingIntent(it))
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i("GateOpenerService", "onDestroy: ")
+        locationHelper.stopListenToLocationUpdates()
     }
-
 
     override fun onBind(p0: Intent?): IBinder? {
         return null

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.google.android.gms.location.ActivityRecognitionResult
-import com.google.android.gms.location.ActivityRecognitionResult.hasResult
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,14 +17,14 @@ class ActivityDetectionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
 
 
-        Log.i(TAG, "onReceive:  ")
+        Log.i(TAG, "onReceive:  ${intent?.extras}")
         intent?.let {
             if(ActivityTransitionResult.hasResult(it)){
                 Log.i(TAG, "onReceive:  hasTransition..")
                 activityDetectionProcessor.onActivityTransition(ActivityTransitionResult.extractResult(it))
             }
 
-            if (hasResult(it)) {
+            if (ActivityRecognitionResult.hasResult(it)) {
                 Log.i(TAG, "onReceive: hasResult: ${it.toString()} ")
                 processDetectedActivities(ActivityRecognitionResult.extractResult(it)?.probableActivities)
             }

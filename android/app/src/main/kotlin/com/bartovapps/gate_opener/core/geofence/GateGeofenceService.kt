@@ -1,4 +1,4 @@
-package com.bartovapps.gate_opener.core.location
+package com.bartovapps.gate_opener.core.geofence
 
 import android.annotation.SuppressLint
 import android.app.Service
@@ -13,8 +13,6 @@ import android.os.IBinder
 import android.util.Log
 import com.bartovapps.gate_opener.core.GateOpenerService
 import com.bartovapps.gate_opener.core.manager.GateOpenerManager
-import com.bartovapps.gate_opener.model.Gate
-import com.bartovapps.gate_opener.storage.gates.GatesDao
 import com.bartovapps.gate_opener.utils.PermissionsHelper
 import com.bartovapps.gate_opener.utils.createAppNotification
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,15 +22,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class LocationForegroundService : Service(), LocationListener {
+class GateGeofenceService : Service(), LocationListener {
 
     @Inject
     lateinit var locationManager : LocationManager
     @Inject
     lateinit var gateOpenerManager: GateOpenerManager
-
-    @Inject
-    lateinit var dao: GatesDao
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null) {
@@ -101,9 +96,9 @@ class LocationForegroundService : Service(), LocationListener {
     private fun checkForClosestGate(location: Location) {
         CoroutineScope(Dispatchers.IO).launch {
            val closestGate = gateOpenerManager.getNearestGate(location)
-            Log.i(TAG, "checkForClosestGate: ${closestGate}")
+            Log.i(TAG, "checkForClosestGate: $closestGate")
             closestGate?.let {
-                if(it.second < 1000) {
+                if(it.second < GEOFENCE_ENTER_RADIUS) {
                     gateOpenerManager.onGettingCloseToNearGate()
                 }
             }
@@ -114,9 +109,11 @@ class LocationForegroundService : Service(), LocationListener {
     companion object{
         private const val TAG = "LocationForegroundService"
         private const val ACTION_START = "com.bartovapps.gate_opener.core.location.LocationForegroundService.start"
+        const val GEOFENCE_ENTER_RADIUS = 1000
+        const val GEOFENCE_EXIT_FACTOR = 1.25
 
         fun sendStartIntent(context: Context) {
-            val intent = Intent(context, LocationForegroundService::class.java)
+            val intent = Intent(context, GateGeofenceService::class.java)
             intent.action = ACTION_START
             safeStartService(context, intent)
         }

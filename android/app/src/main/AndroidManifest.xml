@@ -53,7 +53,7 @@
             android:value="2" />
 
         <service android:name=".core.GateOpenerService" />
-        <service android:name=".core.location.LocationForegroundService" />
+        <service android:name=".core.geofence.GateGeofenceService" />
 
         <receiver
             android:name=".core.activity_detector.ActivityDetectionReceiver"

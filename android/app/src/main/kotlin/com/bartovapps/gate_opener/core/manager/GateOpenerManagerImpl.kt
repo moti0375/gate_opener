@@ -6,7 +6,7 @@ import android.location.Location
 import android.util.Log
 import com.bartovapps.gate_opener.core.GateOpenerService
 import com.bartovapps.gate_opener.core.activators.Activator
-import com.bartovapps.gate_opener.core.location.LocationForegroundService
+import com.bartovapps.gate_opener.core.geofence.GateGeofenceService
 import com.bartovapps.gate_opener.di.QActivityDetectorActivator
 import com.bartovapps.gate_opener.di.QAlarmManagerActivator
 import com.bartovapps.gate_opener.model.Gate
@@ -91,7 +91,7 @@ class GateOpenerManagerImpl @Inject constructor(
     }
 
     private fun stopForegroundService() {
-        val geofenceIntent = Intent(context, LocationForegroundService::class.java)
+        val geofenceIntent = Intent(context, GateGeofenceService::class.java)
         context.stopService(geofenceIntent)
     }
 

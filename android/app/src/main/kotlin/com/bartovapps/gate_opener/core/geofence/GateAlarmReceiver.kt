@@ -5,13 +5,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.bartovapps.gate_opener.core.location.LocationForegroundService
-import com.bartovapps.gate_opener.utils.pIntentFlag
 
 class GateAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         Log.i(TAG, "onReceive: ")
-        LocationForegroundService.sendStartIntent(context)
+        GateGeofenceService.sendStartIntent(context)
     }
 
     companion object{

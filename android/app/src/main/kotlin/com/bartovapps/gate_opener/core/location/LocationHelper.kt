@@ -14,6 +14,8 @@ import com.bartovapps.gate_opener.R
 import com.bartovapps.gate_opener.utils.PermissionsHelper
 import com.bartovapps.gate_opener.core.GateOpenerService.Companion.FOREGROUND_SERVICE_ID
 import com.bartovapps.gate_opener.core.dialer.Dialer
+import com.bartovapps.gate_opener.core.geofence.GateGeofenceService.Companion.GEOFENCE_ENTER_RADIUS
+import com.bartovapps.gate_opener.core.geofence.GateGeofenceService.Companion.GEOFENCE_EXIT_FACTOR
 import com.bartovapps.gate_opener.core.manager.GateOpenerManager
 import com.bartovapps.gate_opener.model.ActivityState
 import com.bartovapps.gate_opener.model.Gate
@@ -39,20 +41,6 @@ class LocationHelper @Inject constructor(
 
     private val mNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private var insideGeofence = true
-    private var activityState = ActivityState.STATIONARY
-    private var closestGate: Gate? = null
-    private val availableGates = mutableListOf<Gate>()
-
-    init {
-        observeDao()
-    }
-
-    private fun observeDao() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val gates = dao.getAllGates()
-            availableGates.addAll(gates)
-        }
-    }
 
     @SuppressLint("MissingPermission")
     fun startListenToLocationUpdates() {
@@ -68,7 +56,6 @@ class LocationHelper @Inject constructor(
 
 
     override fun onLocationChanged(location: Location) {
-        updateClosestGate(location = location)
         processLocation(location)
     }
 
@@ -77,14 +64,10 @@ class LocationHelper @Inject constructor(
     override fun onProviderDisabled(provider: String) {}
     override fun onProviderEnabled(provider: String) {}
 
-    private fun updateClosestGate(location: Location) {
-        this.closestGate = gateOpenerManager.getNearestGate(location)?.first
-        Log.i(TAG, "Closest gate: $closestGate")
-    }
-
     private fun processLocation(location: Location) {
         Log.i(TAG, "process: location: accuracy: ${location.accuracy}, speed: ${location.speed}")
         if (location.hasAccuracy() && location.hasSpeed()) {
+            val closestGate = gateOpenerManager.getNearestGate(location)?.first
             closestGate?.let {
                 val gateLocation = Location("Gate").apply {
                     latitude = it.location.latitude
@@ -92,13 +75,13 @@ class LocationHelper @Inject constructor(
                 }
                 val distance = location.distanceTo(gateLocation)
 
-                if (distance > 1250) { //It means we're leaving the nearest gate..
+                if (distance > GEOFENCE_ENTER_RADIUS * GEOFENCE_EXIT_FACTOR) { //It means we're leaving the nearest gate..
                     stopListenToLocationUpdates()
                     return
                 }
 
-                if (location.accuracy <= 25 && location.speed >= kmhToMsec(15) && location.speed <= kmhToMsec(45)) {
-                    insideGeofence = if (distance < 50) {
+                if (location.accuracy <= MINIMUM_ACCURACY && location.speed >= kmhToMsec(OPEN_MIN_SPEED) && location.speed <= kmhToMsec(OPEN_MAX_SPEED)) {
+                    insideGeofence = if (distance < OPEN_TRIGGER_DISTANCE) {
                         if (!insideGeofence) { //Entered near gate!! Open it!!
                             makeCall(it)
                             locationManager.removeUpdates(this)
@@ -133,4 +116,10 @@ class LocationHelper @Inject constructor(
         caller.makeCall(gate.phoneNumber)
     }
 
+    companion object {
+        private const val MINIMUM_ACCURACY = 25
+        private const val OPEN_MIN_SPEED = 15L
+        private const val OPEN_MAX_SPEED = 45L
+        private const val OPEN_TRIGGER_DISTANCE = 2
+    }
 }

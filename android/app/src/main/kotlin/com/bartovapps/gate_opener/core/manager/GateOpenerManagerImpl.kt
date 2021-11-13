@@ -20,19 +20,18 @@ class GateOpenerManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val dao: GatesDao,
     @QAlarmManagerActivator private val alarmActivator: Activator,
-    @QActivityDetectorActivator private val activityDetectorImpl: Activator
+    @QActivityDetectorActivator private val activityDetector: Activator
 ) : GateOpenerManager {
 
     private val availableGates = mutableListOf<Gate>()
 
     override fun start() {
         dao.getAll().observeForever {
+            availableGates.clear()
             if (it.isNotEmpty()) {
-                activityDetectorImpl.activate()
-                availableGates.clear()
                 availableGates.addAll(it)
+                activityDetector.activate()
             } else {
-                availableGates.clear()
                 stopTracking()
             }
         }
@@ -65,7 +64,7 @@ class GateOpenerManagerImpl @Inject constructor(
 
 
     override fun stopTracking() {
-        activityDetectorImpl.deactivate()
+        activityDetector.deactivate()
         onExitVehicle()
     }
 

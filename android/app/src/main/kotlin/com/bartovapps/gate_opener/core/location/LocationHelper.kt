@@ -11,21 +11,19 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.bartovapps.gate_opener.R
+import com.bartovapps.gate_opener.analytics.event.Event
+import com.bartovapps.gate_opener.analytics.event.GeofenceEvent
+import com.bartovapps.gate_opener.analytics.manager.Analytics
 import com.bartovapps.gate_opener.utils.PermissionsHelper
 import com.bartovapps.gate_opener.core.GateOpenerService.Companion.FOREGROUND_SERVICE_ID
 import com.bartovapps.gate_opener.core.dialer.Dialer
 import com.bartovapps.gate_opener.core.geofence.GateGeofenceService.Companion.GEOFENCE_ENTER_RADIUS
 import com.bartovapps.gate_opener.core.geofence.GateGeofenceService.Companion.GEOFENCE_EXIT_FACTOR
 import com.bartovapps.gate_opener.core.manager.GateOpenerManager
-import com.bartovapps.gate_opener.model.ActivityState
 import com.bartovapps.gate_opener.model.Gate
-import com.bartovapps.gate_opener.storage.gates.GatesDao
 import com.bartovapps.gate_opener.utils.FG_CHANNEL
 import com.bartovapps.gate_opener.utils.kmhToMsec
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -34,8 +32,8 @@ private const val TAG = "com.bartovapps.gate_opener.core.LocationHelper"
 class LocationHelper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val caller: Dialer,
-    private val dao: GatesDao,
-    private val gateOpenerManager: GateOpenerManager
+    private val gateOpenerManager: GateOpenerManager,
+    private val analytics: Analytics
 ) : LocationListener {
     private val locationManager: LocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
@@ -77,6 +75,7 @@ class LocationHelper @Inject constructor(
 
                 if (distance > GEOFENCE_ENTER_RADIUS * GEOFENCE_EXIT_FACTOR) { //It means we're leaving the nearest gate..
                     stopListenToLocationUpdates()
+                    analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.EXIT_GEOFENCE))
                     return
                 }
 
@@ -86,6 +85,7 @@ class LocationHelper @Inject constructor(
                             makeCall(it)
                             locationManager.removeUpdates(this)
                             gateOpenerManager.onReachedDestination()
+                            analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.ARRIVED_DESTINATION).setDetails(it.toBundle()))
                         } else {
                             updateNotification("Reaching: ${it.name} in ${distance}m")
                         }
@@ -118,8 +118,8 @@ class LocationHelper @Inject constructor(
 
     companion object {
         private const val MINIMUM_ACCURACY = 25
-        private const val OPEN_MIN_SPEED = 15L
-        private const val OPEN_MAX_SPEED = 45L
-        private const val OPEN_TRIGGER_DISTANCE = 2
+        private const val OPEN_MIN_SPEED = 15
+        private const val OPEN_MAX_SPEED = 45
+        private const val OPEN_TRIGGER_DISTANCE = 50
     }
 }

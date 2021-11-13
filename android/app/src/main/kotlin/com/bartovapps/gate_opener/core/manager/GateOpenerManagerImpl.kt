@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.util.Log
+import com.bartovapps.gate_opener.analytics.event.Event
+import com.bartovapps.gate_opener.analytics.event.ManagerEvent
+import com.bartovapps.gate_opener.analytics.manager.Analytics
 import com.bartovapps.gate_opener.core.GateOpenerService
 import com.bartovapps.gate_opener.core.activators.Activator
 import com.bartovapps.gate_opener.core.geofence.GateGeofenceService
@@ -20,12 +23,14 @@ class GateOpenerManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val dao: GatesDao,
     @QAlarmManagerActivator private val alarmActivator: Activator,
-    @QActivityDetectorActivator private val activityDetector: Activator
+    @QActivityDetectorActivator private val activityDetector: Activator,
+    private val analytics: Analytics
 ) : GateOpenerManager {
 
     private val availableGates = mutableListOf<Gate>()
 
     override fun start() {
+        analytics.sendEvent(ManagerEvent(eventName = ManagerEvent.EVENT_NAME.STARTED))
         dao.getAll().observeForever {
             availableGates.clear()
             if (it.isNotEmpty()) {

@@ -11,6 +11,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import androidx.core.os.bundleOf
+import com.bartovapps.gate_opener.analytics.event.Event
+import com.bartovapps.gate_opener.analytics.event.GeofenceEvent
+import com.bartovapps.gate_opener.analytics.manager.Analytics
 import com.bartovapps.gate_opener.core.GateOpenerService
 import com.bartovapps.gate_opener.core.manager.GateOpenerManager
 import com.bartovapps.gate_opener.utils.PermissionsHelper
@@ -28,6 +32,8 @@ class GateGeofenceService : Service(), LocationListener {
     lateinit var locationManager : LocationManager
     @Inject
     lateinit var gateOpenerManager: GateOpenerManager
+    @Inject
+    lateinit var analytics: Analytics
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null) {
@@ -99,6 +105,7 @@ class GateGeofenceService : Service(), LocationListener {
             Log.i(TAG, "checkForClosestGate: $closestGate")
             closestGate?.let {
                 if(it.second < GEOFENCE_ENTER_RADIUS) {
+                    analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.ENTERED_GEOFENCE).setDetails(it.first.toBundle()))
                     gateOpenerManager.onGettingCloseToNearGate()
                 }
             }

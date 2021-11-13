@@ -9,3 +9,7 @@ annotation class QAlarmManagerActivator
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class QActivityDetectorActivator
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class QFirebaseAnalyticsEndpoint

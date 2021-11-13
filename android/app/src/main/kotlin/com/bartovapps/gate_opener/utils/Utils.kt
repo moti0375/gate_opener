@@ -55,4 +55,4 @@ val pIntentFlag = if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S) { PendingInt
     PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
 }
 
-fun kmhToMsec(kmh: Long) =  kmh * MSEC_FACTOR
+fun kmhToMsec(kmh: Int) =  kmh * MSEC_FACTOR

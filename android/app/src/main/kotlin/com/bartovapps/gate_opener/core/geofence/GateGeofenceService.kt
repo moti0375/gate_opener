@@ -90,7 +90,9 @@ class GateGeofenceService : Service(), LocationListener {
 
     override fun onLocationChanged(location: Location) {
         Log.i(TAG, "onLocationChanged: $location")
-        checkForClosestGate(location)
+        if(gateOpenerManager.active){
+            checkForClosestGate(location)
+        }
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
@@ -114,7 +116,7 @@ class GateGeofenceService : Service(), LocationListener {
     }
 
     companion object{
-        private const val TAG = "LocationForegroundService"
+        private const val TAG = "GateGeofenceService"
         private const val ACTION_START = "com.bartovapps.gate_opener.core.location.LocationForegroundService.start"
         const val GEOFENCE_ENTER_RADIUS = 1000
         const val GEOFENCE_EXIT_FACTOR = 1.25

@@ -13,4 +13,6 @@ interface GateOpenerManager {
     fun onGettingCloseToNearGate()
     fun onExitNearestGateZone()
     fun getNearestGate(currentLocation: Location) : Pair<Gate, Float>?
+
+    var active : Boolean
 }

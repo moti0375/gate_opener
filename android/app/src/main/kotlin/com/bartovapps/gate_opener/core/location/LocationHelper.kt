@@ -49,7 +49,6 @@ class LocationHelper @Inject constructor(
 
     fun stopListenToLocationUpdates() {
         locationManager.removeUpdates(this)
-        gateOpenerManager.onExitNearestGateZone()
     }
 
 
@@ -74,7 +73,7 @@ class LocationHelper @Inject constructor(
                 val distance = location.distanceTo(gateLocation)
 
                 if (distance > GEOFENCE_ENTER_RADIUS * GEOFENCE_EXIT_FACTOR) { //It means we're leaving the nearest gate..
-                    stopListenToLocationUpdates()
+                    gateOpenerManager.onExitNearestGateZone()
                     analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.EXIT_GEOFENCE))
                     return
                 }
@@ -83,8 +82,7 @@ class LocationHelper @Inject constructor(
                     insideGeofence = if (distance < OPEN_TRIGGER_DISTANCE) {
                         if (!insideGeofence) { //Entered near gate!! Open it!!
                             makeCall(it)
-                            locationManager.removeUpdates(this)
-                            gateOpenerManager.onReachedDestination()
+                            //gateOpenerManager.onReachedDestination()
                             analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.ARRIVED_DESTINATION).setDetails(it.toBundle()))
                         } else {
                             updateNotification("Reaching: ${it.name} in ${distance}m")

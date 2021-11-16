@@ -5,11 +5,20 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.bartovapps.gate_opener.core.manager.GateOpenerManager
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class GateAlarmReceiver : BroadcastReceiver() {
+
+    @Inject lateinit var manager: GateOpenerManager
+
     override fun onReceive(context: Context, intent: Intent) {
         Log.i(TAG, "onReceive: ")
-        GateGeofenceService.sendStartIntent(context)
+        if(manager.active){
+            GateGeofenceService.sendStartIntent(context)
+        }
     }
 
     companion object{

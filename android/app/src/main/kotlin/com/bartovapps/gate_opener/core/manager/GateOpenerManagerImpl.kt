@@ -28,6 +28,7 @@ class GateOpenerManagerImpl @Inject constructor(
 ) : GateOpenerManager {
 
     private val availableGates = mutableListOf<Gate>()
+    override var active: Boolean = false
 
     override fun start() {
         analytics.sendEvent(ManagerEvent(eventName = ManagerEvent.EVENT_NAME.STARTED))
@@ -43,6 +44,7 @@ class GateOpenerManagerImpl @Inject constructor(
     }
 
     override fun onEnteredVehicle() {
+        active = true
         startAlarmManager()
     }
 
@@ -75,6 +77,7 @@ class GateOpenerManagerImpl @Inject constructor(
 
     override fun onExitVehicle() {
         Log.i(TAG, "onExitVehicle: stop everything!!")
+        active = false
         stopAlarmManager()
         stopForegroundService()
         stopGateOpenerService()

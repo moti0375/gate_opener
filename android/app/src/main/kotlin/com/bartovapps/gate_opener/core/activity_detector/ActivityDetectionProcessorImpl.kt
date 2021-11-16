@@ -35,16 +35,23 @@ class ActivityDetectionProcessorImpl @Inject constructor(
 
     override fun onActivityTransition(transitionResult: ActivityTransitionResult?) {
         Log.i(TAG, "onActivityTransition: ${transitionResult?.transitionEvents}")
-        transitionResult?.transitionEvents?.forEach {
-            when (it.activityType) {
-                IN_VEHICLE -> handleVehicleTransitionChange(it.transitionType)
-                else -> {
-                    if(it.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER) { //Starting activity other than vehicle
-                        handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                    }
-                }
-            }
+
+        transitionResult?.transitionEvents?.firstOrNull { it.activityType == IN_VEHICLE }?.also {
+            handleVehicleTransitionChange(it.transitionType)
         }
+
+//        transitionResult?.transitionEvents?.forEach {
+//            when (it.activityType) {
+//                IN_VEHICLE -> {
+//                    return
+//                }
+//                else -> {
+//                    if(it.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER) { //Starting activity other than vehicle
+//                        handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+//                    }
+//                }
+//            }
+//        }
     }
 
     private fun handleVehicleTransitionChange(transitionType: Int) {

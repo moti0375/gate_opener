@@ -3,13 +3,11 @@ package com.bartovapps.gate_opener.core.activity_detector
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
 import androidx.core.os.bundleOf
 import com.bartovapps.gate_opener.analytics.event.ActivityRecognitionEvent
 import com.bartovapps.gate_opener.analytics.manager.Analytics
 import com.bartovapps.gate_opener.core.activators.Activator
-import com.bartovapps.gate_opener.utils.pIntentFlag
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest

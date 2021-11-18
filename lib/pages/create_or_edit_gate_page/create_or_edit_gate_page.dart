@@ -61,8 +61,8 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
 
   @override
   void dispose() {
-    super.dispose();
     mobxDispose?.call();
+    super.dispose();
   }
 
   @override
@@ -108,6 +108,7 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _createFormSection(context),
+                  Spacer(),
                   Observer(
                     builder: (_) => DesignedButton(
                       color: AppColors.shareButton,
@@ -247,25 +248,29 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
           SizedBox(
             height: 16,
           ),
-          AppTextView(
-              text: widget.store.name,
-              rightIcon: Icon(
-                Icons.create,
-                size: 50,
-              ),
-              style: Theme.of(context).textTheme.headline6,
-              onRightIconClicked: () => widget.store.onSetNameClicked()),
+          Observer(
+            builder: (_) => AppTextView(
+                text: widget.store.name ??= "",
+                rightIcon: Icon(
+                  Icons.create,
+                  size: 50,
+                ),
+                style: Theme.of(context).textTheme.headline6,
+                onRightIconClicked: () => widget.store.onSetNameClicked()),
+          ),
           SizedBox(
             height: 16,
           ),
-          AppTextView(
-            text: widget.store.phoneNumber,
-            rightIcon: Icon(
-              Icons.phone,
-              size: 50,
+          Observer(
+            builder: (_) => AppTextView(
+              text: widget.store.phoneNumber ??= "",
+              rightIcon: Icon(
+                Icons.phone,
+                size: 50,
+              ),
+              style: Theme.of(context).textTheme.headline6,
+              onRightIconClicked: () => widget.store.onSetPhoneClicked(),
             ),
-            style: Theme.of(context).textTheme.headline6,
-            onRightIconClicked: () => widget.store.onSetPhoneClicked(),
           )
         ],
       ),
@@ -328,6 +333,7 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
       case ShowEditPhoneDialog:
         {
           _showDialog(context,
+              initialValue: (action as ShowEditPhoneDialog).phoneNumber,
               title: "Edit Phone",
               description: "Enter gate phone number",
               icon: Icon(

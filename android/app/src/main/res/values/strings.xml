@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Gate Opener</string>
+    <string name="gate_radar_notification_message">Gates radar looking for a gate in your area</string>
+    <string name="km_format">%.1f Km</string>
+    <string name="meters_format">%.1f M</string>
+    <string name="reaching_gate">Reaching %1$s in %2$s</string>
+    <string name="driving_to">Driving to: %1$s, in %2$s</string>
+    <string name="around">Around to %1$s</string>
+    <string name="calling">Calling to: %1$s</string>
+</resources>

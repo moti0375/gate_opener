@@ -46,6 +46,7 @@ abstract class CreateOrEditGateBase with Store {
 
   @action
   void setName(String name){
+    print("CreateOrEditStore: setName: $name");
     this.name = name;
   }
 

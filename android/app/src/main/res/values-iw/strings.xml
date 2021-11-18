@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">פותח שערים</string>
+    <string name="gate_radar_notification_message">רדאר השערים בפעולה - מחפש שערים בסביבה</string>
+    <string name="km_format">%.1f ק״מ</string>
+    <string name="meters_format">%.1f מטר</string>
+    <string name="reaching_gate">מתקרב אל: %1$s, בעוד %2$s</string>
+    <string name="driving_to">נסיעה אל: %1$s, בעוד %2$s</string>
+    <string name="around">באיזור של %1$s</string>
+    <string name="calling">מחייג ל: %1$s</string>
+
+</resources>

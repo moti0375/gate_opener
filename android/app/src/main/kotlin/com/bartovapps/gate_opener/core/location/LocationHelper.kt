@@ -17,6 +17,8 @@ import com.bartovapps.gate_opener.analytics.manager.Analytics
 import com.bartovapps.gate_opener.utils.PermissionsHelper
 import com.bartovapps.gate_opener.core.GateOpenerService.Companion.FOREGROUND_SERVICE_ID
 import com.bartovapps.gate_opener.core.dialer.Dialer
+import com.bartovapps.gate_opener.core.formatters.Formatter
+import com.bartovapps.gate_opener.core.formatters.SpeedFormatter
 import com.bartovapps.gate_opener.core.geofence.GateGeofenceService.Companion.GEOFENCE_ENTER_RADIUS
 import com.bartovapps.gate_opener.core.geofence.GateGeofenceService.Companion.GEOFENCE_EXIT_FACTOR
 import com.bartovapps.gate_opener.core.manager.GateOpenerManager
@@ -33,7 +35,8 @@ class LocationHelper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val caller: Dialer,
     private val gateOpenerManager: GateOpenerManager,
-    private val analytics: Analytics
+    private val analytics: Analytics,
+    private val speedFormatter: Formatter<Double>
 ) : LocationListener {
     private val locationManager: LocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
@@ -85,17 +88,18 @@ class LocationHelper @Inject constructor(
                             //gateOpenerManager.onReachedDestination()
                             analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.ARRIVED_DESTINATION).setDetails(it.toBundle()))
                         } else {
-                            updateNotification("Reaching: ${it.name} in ${distance}m")
+                            val speedFormat = speedFormatter.format(distance.toDouble())
+                            updateNotification(context.getString(R.string.reaching_gate, it.name, speedFormat))
                         }
                         true
                     } else {
                         if (insideGeofence) {
-                            updateNotification("Around ${it.name}")
+                            updateNotification(context.getString(R.string.around, it.name))
                         }
                         false
                     }
                 } else {
-                    updateNotification("Driving to ${it.name}: - ${distance}m")
+                    updateNotification(context.getString(R.string.driving_to, it.name, speedFormatter.format(distance.toDouble())))
                 }
             }
         }
@@ -110,7 +114,7 @@ class LocationHelper @Inject constructor(
     }
 
     private fun makeCall(gate: Gate) {
-        updateNotification("Calling ${gate.name}")
+        updateNotification(context.getString(R.string.calling, gate.name))
         caller.makeCall(gate.phoneNumber)
     }
 

@@ -1,12 +1,7 @@
 package com.bartovapps.gate_opener
 
-import android.content.Intent
-import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
 import androidx.activity.viewModels
-import androidx.lifecycle.lifecycleScope
-import com.bartovapps.gate_opener.core.GateOpenerService
 import com.bartovapps.gate_opener.model.serializeToMap
 import dagger.hilt.android.AndroidEntryPoint
 import io.flutter.embedding.engine.FlutterEngine
@@ -14,10 +9,6 @@ import io.flutter.plugin.common.MethodChannel
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.plugin.common.EventChannel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.suspendCoroutine
 
 private const val TAG = "MainActivity"
 @AndroidEntryPoint

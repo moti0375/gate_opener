@@ -33,7 +33,7 @@ class DesignedButton extends StatelessWidget {
   ButtonStyle _createButtonStyle(BuildContext context) {
     return ButtonStyle(
         padding: MaterialStateProperty.all<EdgeInsets>(
-            EdgeInsets.zero),
+            EdgeInsets.symmetric(horizontal: 8)),
         backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
           var disabledColor = outlined

@@ -15,3 +15,11 @@ class DeleteGate extends HomePageEvent{
 class AddGate extends HomePageEvent{
   AddGate();
 }
+
+class RequestLocationPermission extends HomePageEvent{}
+class RequestActivityPermission extends HomePageEvent{}
+class RequestPhonePermission extends HomePageEvent{}
+
+class AllPermissionsGranted extends HomePageEvent{
+  AllPermissionsGranted();
+}

@@ -2,6 +2,7 @@ package com.bartovapps.gate_opener
 
 import android.util.Log
 import androidx.activity.viewModels
+import com.bartovapps.gate_opener.core.manager.GateOpenerManager
 import com.bartovapps.gate_opener.model.serializeToMap
 import dagger.hilt.android.AndroidEntryPoint
 import io.flutter.embedding.engine.FlutterEngine
@@ -9,8 +10,10 @@ import io.flutter.plugin.common.MethodChannel
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.plugin.common.EventChannel
+import javax.inject.Inject
 
 private const val TAG = "MainActivity"
+
 @AndroidEntryPoint
 class MainActivity : FlutterFragmentActivity(), EventChannel.StreamHandler {
     private val EVENT_CHANNEL = "com.bartovapps.gate_opener.channel.events"
@@ -18,6 +21,8 @@ class MainActivity : FlutterFragmentActivity(), EventChannel.StreamHandler {
 
     private val viewModel by viewModels<MainViewModel>()
     private var eventSink: EventChannel.EventSink? = null
+    @Inject
+    lateinit var manager: GateOpenerManager
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -43,7 +48,6 @@ class MainActivity : FlutterFragmentActivity(), EventChannel.StreamHandler {
     }
 
 
-
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
         Log.i(TAG, "onListen: $events")
         eventSink = events
@@ -58,14 +62,15 @@ class MainActivity : FlutterFragmentActivity(), EventChannel.StreamHandler {
 //
 //        val gates = mutableListOf<Map<String, Any>>()
 //        gates.add(gate)
-       // events?.success(gates)
+        // events?.success(gates)
     }
 
     private fun observeViewModel() {
         viewModel.gatesMutableLiveData.observe(this, {
-           val data = it.map { gate -> gate.serializeToMap() }
-           Log.i(TAG, "onChange: $data")
-           eventSink?.success(data)
+            manager.onGatesUpdated()
+            val data = it.map { gate -> gate.serializeToMap() }
+            Log.i(TAG, "onChange: $data")
+            eventSink?.success(data)
         })
     }
 

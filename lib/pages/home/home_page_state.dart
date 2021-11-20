@@ -11,3 +11,21 @@ class GatesLoaded extends HomePageState{
   @override
   bool? get stringify => true;
 }
+
+
+abstract class HomePermissionState extends HomePageState{
+  @override
+  List<Object?> get props => [];
+  @override
+  bool? get stringify => true;
+  @override
+  bool operator ==(Object other) {
+    return false;
+  }
+}
+
+class NoLocationPermissionState extends HomePermissionState{}
+class NoAlwaysLocationPermission extends HomePermissionState{}
+class NoActivityRecognitionPermission extends HomePermissionState{}
+class NoPhonePermission extends HomePermissionState{}
+class PermissionGranted extends HomePermissionState {}

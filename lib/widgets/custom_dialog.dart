@@ -8,7 +8,8 @@ class CustomDialog extends StatelessWidget {
   final String title;
   final String description;
   final String? initialValue;
-  final Widget? icon;
+  final bool inputDialog;
+  final Icon icon;
   final ValueChanged<String?>? onSubmitted;
   final TextInputType textInputType;
 
@@ -17,6 +18,7 @@ class CustomDialog extends StatelessWidget {
       required this.title,
       required this.description,
       required this.icon,
+      this.inputDialog = false,
       this.initialValue,
       this.onSubmitted,
       this.textInputType = TextInputType.text})
@@ -36,10 +38,10 @@ class CustomDialog extends StatelessWidget {
           Container(
             padding: EdgeInsets.only(
                 left: Dimens.dialogPadding,
-                top: Dimens.dialogPadding + Dimens.avatarRadius,
+                top: Dimens.dialogPadding + icon.size! ,
                 bottom: Dimens.dialogPadding,
                 right: Dimens.dialogPadding),
-            margin: EdgeInsets.only(top: Dimens.avatarRadius),
+            margin: EdgeInsets.only(top: icon.size!),
             decoration: BoxDecoration(
                 shape: BoxShape.rectangle,
                 color: Theme.of(context).backgroundColor,
@@ -56,58 +58,73 @@ class CustomDialog extends StatelessWidget {
               children: [
                 AppTextView(
                   text: description,
-                  maxLines: 1,
                   style: Theme.of(context).textTheme.bodyText1,
-                  textAlign: TextAlign.center,
-                ),
-                TextField(
                   textAlign: TextAlign.start,
-                  controller: controller,
-                  style: Theme.of(context).textTheme.bodyText2,
-                  keyboardType: textInputType,
-                  autofocus: true,
-                  onChanged: (t) {
-                    text = t;
-                    print("onChanged: text: $text");
-                  },
-                  decoration: InputDecoration(labelText: title, contentPadding: EdgeInsets.zero, focusColor: AppColors.shareButton),
+                ),
+                Visibility(
+                  visible: inputDialog,
+                  child: TextField(
+                    textAlign: TextAlign.start,
+                    controller: controller,
+                    style: Theme.of(context).textTheme.bodyText2,
+                    keyboardType: textInputType,
+                    autofocus: true,
+                    onChanged: (t) {
+                      text = t;
+                      print("onChanged: text: $text");
+                    },
+                    decoration: InputDecoration(labelText: title, contentPadding: EdgeInsets.zero, focusColor: AppColors.shareButton),
+                  ),
                 ),
                 SizedBox(
                   height: 22,
                 ),
                 Align(
                   alignment: Alignment.bottomRight,
-                  child: DesignedButton(
-                    outlined: true,
-                    height: 35,
-                    text: "OK",
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      if(text?.isNotEmpty == true){
-                        onSubmitted?.call(text);
-                      }
-                    },
-                    color: AppColors.shareButton,
+                  child: Row(
+                    children: [
+                      DesignedButton(
+                        outlined: true,
+                        height: 35,
+                        text: "OK",
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          if(!inputDialog){
+                            onSubmitted?.call(null);
+                          } else if(text?.isNotEmpty == true){
+                              onSubmitted?.call(text);
+                          }
+                        },
+                        color: AppColors.shareButton,
+                      ),
+                      SizedBox(width: 8,),
+                      DesignedButton(
+                        outlined: true,
+                        height: 35,
+                        text: "Cancel",
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        color: AppColors.shareButton,
+                      ),
+                    ],
                   ),
                 )
               ],
             ),
           ),
-          Visibility(
-            visible: icon != null,
-            child: Positioned(
-                right: Dimens.dialogPadding,
-                left: Dimens.dialogPadding,
-                child: CircleAvatar(
-                  backgroundColor: AppColors.GeneralDividerGray,
-                  radius: Dimens.avatarRadius,
-                  child: ClipRRect(
-                    borderRadius:
-                        BorderRadius.all(Radius.circular(Dimens.avatarRadius)),
-                    child: icon,
-                  ),
-                )),
-          )
+          Positioned(
+              right: Dimens.dialogPadding,
+              left: Dimens.dialogPadding,
+              child: CircleAvatar(
+                backgroundColor: AppColors.GeneralDividerGray,
+                radius: Dimens.avatarRadius,
+                child: ClipRRect(
+                  borderRadius:
+                      BorderRadius.all(Radius.circular(Dimens.avatarRadius)),
+                  child: icon,
+                ),
+              ))
         ],
       );
     }

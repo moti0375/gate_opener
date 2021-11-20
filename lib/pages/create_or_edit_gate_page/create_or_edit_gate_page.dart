@@ -91,8 +91,7 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
                     myLocationEnabled: true,
                     initialCameraPosition: CameraPosition(
                         target: widget.store.location ??= LatLng(0, 0),
-                        zoom: 15
-                    ),
+                        zoom: 15),
                     onMapCreated: (GoogleMapController controller) {
                       _controller.complete(controller);
                       _googleMapController = controller;
@@ -131,7 +130,8 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
   void _initializeMap() async {
     Position? locationData = await _getCurrentPosition();
     if (locationData != null) {
-      widget.store.initializeMap(LatLng(locationData.latitude, locationData.longitude));
+      widget.store
+          .initializeMap(LatLng(locationData.latitude, locationData.longitude));
       //widget.store.setLocationChanged(LatLng(locationData.latitude, locationData.longitude));
       // _moveMapToPosition(
       //     LatLng(locationData.latitude, locationData.longitude), currentZoom);
@@ -285,12 +285,13 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
       {required String title,
       required String description,
       String? initialValue,
-      Widget? icon,
+      icon,
       required ValueChanged onSubmitted,
       TextInputType inputType = TextInputType.text}) async {
     showDialog(
         context: context,
         builder: (context) => CustomDialog(
+              inputDialog: true,
               initialValue: initialValue,
               title: title,
               description: description,

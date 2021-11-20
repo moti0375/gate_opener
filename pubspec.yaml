@@ -39,6 +39,7 @@ dependencies:
   flutter_mobx: ^2.0.2
   get_it: ^7.2.0
   geolocator: ^7.7.1
+  permission_handler: ^8.1.6
 
 #Build Runner Command: -> flutter pub run build_runner build --delete-conflicting-outputs
 dev_dependencies:

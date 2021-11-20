@@ -15,6 +15,9 @@ import com.bartovapps.gate_opener.di.QAlarmManagerActivator
 import com.bartovapps.gate_opener.model.Gate
 import com.bartovapps.gate_opener.storage.gates.GatesDao
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,15 +35,7 @@ class GateOpenerManagerImpl @Inject constructor(
 
     override fun start() {
         analytics.sendEvent(ManagerEvent(eventName = ManagerEvent.EVENT_NAME.STARTED))
-        dao.getAll().observeForever {
-            availableGates.clear()
-            if (it.isNotEmpty()) {
-                availableGates.addAll(it)
-                activityDetector.activate()
-            } else {
-                stopTracking()
-            }
-        }
+        fetchAllGates()
     }
 
     override fun onEnteredVehicle() {
@@ -58,7 +53,7 @@ class GateOpenerManagerImpl @Inject constructor(
         startAlarmManager()
     }
 
-    override fun getNearestGate(currentLocation: Location): Pair<Gate, Float>? {
+    override fun getNearestGate(currentLocation: Location): Pair<Gate, Float> {
         return availableGates.map {
             Pair(it, Location("gate").apply {
                 latitude = it.location.latitude
@@ -69,8 +64,8 @@ class GateOpenerManagerImpl @Inject constructor(
         }
     }
 
-
     override fun stopTracking() {
+        Log.i(TAG, "stopTracking: ")
         activityDetector.deactivate()
         onExitVehicle()
     }
@@ -86,6 +81,10 @@ class GateOpenerManagerImpl @Inject constructor(
     override fun onReachedDestination() {
         stopGateOpenerService()
         startAlarmManager()
+    }
+
+    override fun onGatesUpdated() {
+        fetchAllGates()
     }
 
     private fun startGateOpenerService() {
@@ -111,7 +110,19 @@ class GateOpenerManagerImpl @Inject constructor(
     }
 
 
+    private fun fetchAllGates() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val gates = dao.getAllGates()
+            if(gates.isEmpty()){
+                stopTracking()
+            } else {
+                availableGates.clear()
+                availableGates.addAll(gates)
+                activityDetector.activate()
+            }
+        }
+    }
     companion object{
-        private const val TAG = "GateOpenerMangaer"
+        private const val TAG = "GateOpenerManager"
     }
 }

@@ -12,6 +12,7 @@ import 'package:gate_opener/res/colors.dart';
 import 'package:gate_opener/res/strings.dart';
 import 'package:gate_opener/widgets/add_gate_card_item.dart';
 import 'package:gate_opener/widgets/app_text_view.dart';
+import 'package:gate_opener/widgets/custom_dialog.dart';
 import 'package:gate_opener/widgets/designed_button.dart';
 import 'package:gate_opener/widgets/gate_card_item.dart';
 
@@ -50,7 +51,65 @@ class _HomePageState extends State<HomePage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-            child: BlocBuilder<HomePageBloc, HomePageState>(
+            child: BlocConsumer<HomePageBloc, HomePageState>(
+          listener: (_, state) {
+            print("BlocListener: $state");
+            if (state is NoLocationPermissionState) {
+              _showDialog(
+                context,
+                title: "Location Permission",
+                description:
+                    "In order to use this app, it is required\nto have always on location permission. Thanks for understanding",
+                icon: Icon(
+                  Icons.location_on_outlined,
+                  size: 35,
+                ),
+                onSubmitted: (_) {
+                  print("onSubmitted");
+                  context.read<HomePageBloc>().add(RequestLocationPermission());
+                },
+              );
+            }
+            if(state is NoActivityRecognitionPermission){
+              _showDialog(
+                context,
+                title: "Activity Permission",
+                description:
+                "In order to recognize vehicle driving, it is required to allow access to your Activity.\nNo abuse shall be done with this permission",
+                icon: Icon(
+                  Icons.nordic_walking,
+                  size: 35,
+                ),
+                onSubmitted: (_) {
+                  print("onSubmitted");
+                  context.read<HomePageBloc>().add(RequestActivityPermission());
+                },
+              );
+            }
+
+            if(state is NoPhonePermission){
+              _showDialog(
+                context,
+                title: "Phone Permission",
+                description:
+                "In order to be able dialing to gate, it is required to allow accessing your phone system.\nNo abuse shall be done with this permission",
+                icon: Icon(
+                  Icons.phone_forwarded_sharp,
+                  size: 35,
+                ),
+                onSubmitted: (_) {
+                  print("onSubmitted");
+                  context.read<HomePageBloc>().add(RequestPhonePermission());
+                },
+              );
+            }
+
+
+            if (state is PermissionGranted) {
+              navigateToMapPage(initialGate: null);
+            }
+          },
+          buildWhen: (_, state) => state is! HomePermissionState,
           builder: (context, state) => _buildPageContent(state),
         )),
       ),
@@ -73,22 +132,27 @@ class _HomePageState extends State<HomePage> {
             (index) => index == gates.length
                 ? Padding(
                     padding: const EdgeInsets.all(4.0),
-                    child: AddGateCardItem(onPressed: navigateToMapPage),
+                    child: AddGateCardItem(
+                        onPressed: () =>
+                            context.read<HomePageBloc>().add(AddGate())),
                   )
                 : Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: GateCardItem(
                       title: gates[index].name,
                       subtitle: gates[index].phoneNumber,
-                      onPressed: () => navigateToMapPage(initialGate: gates[index]),
-                      onLongPressed: () => _showDeleteDialog(gates[index], context),
+                      onPressed: () =>
+                          navigateToMapPage(initialGate: gates[index]),
+                      onLongPressed: () =>
+                          _showDeleteDialog(gates[index], context),
                     ),
                   )));
   }
 
   void navigateToMapPage({Gate? initialGate}) {
-    Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => CreateOrEditGatePage.create(initialGate: initialGate)));
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) =>
+            CreateOrEditGatePage.create(initialGate: initialGate)));
   }
 
   Future _showDeleteDialog(Gate gate, BuildContext context) async {
@@ -107,8 +171,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     context.read<HomePageBloc>().add(DeleteGate(gate.id!));
                     Navigator.of(context).pop();
-                  }
-                      ,
+                  },
                 ),
                 DesignedButton(
                   color: AppColors.shareButton,
@@ -117,6 +180,26 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () => Navigator.of(context).pop(),
                 )
               ],
+            ));
+  }
+
+  void _showDialog(BuildContext context,
+      {required String title,
+      required String description,
+      String? initialValue,
+      icon,
+      required ValueChanged onSubmitted,
+      TextInputType inputType = TextInputType.text}) async {
+    showDialog(
+        context: context,
+        builder: (context) => CustomDialog(
+              inputDialog: false,
+              initialValue: initialValue,
+              title: title,
+              description: description,
+              icon: icon,
+              onSubmitted: onSubmitted,
+              textInputType: inputType,
             ));
   }
 }

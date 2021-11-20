@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -69,7 +70,7 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create Gate"),
+        title: Observer(builder:  (_) => Text(widget.store.initialGate != null ? tr('edit_screen_title') : tr('create_screen_title'))),
         elevation: 0,
       ),
       resizeToAvoidBottomInset: false,
@@ -112,7 +113,7 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
                     builder: (_) => DesignedButton(
                       color: AppColors.shareButton,
                       height: 60,
-                      text: "Select",
+                      text: tr('save'),
                       onPressed: widget.store.formValid
                           ? () => widget.store.submit()
                           : null,
@@ -320,8 +321,8 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
           print("ShowSetNameDialog: ${(action as ShowSetNameDialog).name}");
           _showDialog(context,
               initialValue: action.name,
-              title: "Edit name",
-              description: "Enter gate name",
+              title: tr('name_edit_title'),
+              description: tr('name_edit_subtitle'),
               icon: Icon(
                 Icons.description,
                 size: 50,
@@ -335,10 +336,10 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
         {
           _showDialog(context,
               initialValue: (action as ShowEditPhoneDialog).phoneNumber,
-              title: "Edit Phone",
-              description: "Enter gate phone number",
+              title: tr('phone_edit_title'),
+              description: tr('phone_edit_subtitle'),
               icon: Icon(
-                Icons.phone,
+                Icons.settings_cell_outlined,
                 size: 50,
               ),
               onSubmitted: (text) => widget.store.setPhoneNumber(text),

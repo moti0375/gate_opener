@@ -15,13 +15,15 @@ class CreateOrEditStore extends CreateOrEditGateBase with _$CreateOrEditStore{
 abstract class CreateOrEditGateBase with Store {
 
   GateOpenerRepository _repository;
-  Gate? _initialGate;
 
-  CreateOrEditGateBase(this._repository, this._initialGate){
-    if(_initialGate != null){
-      setName(_initialGate!.name);
-      setPhoneNumber(_initialGate!.phoneNumber);
-      setLocationChanged(LatLng(_initialGate!.location.latitude, _initialGate!.location.longitude));
+  @observable
+  Gate? initialGate;
+
+  CreateOrEditGateBase(this._repository, this.initialGate){
+    if(initialGate != null){
+      setName(initialGate!.name);
+      setPhoneNumber(initialGate!.phoneNumber);
+      setLocationChanged(LatLng(initialGate!.location.latitude, initialGate!.location.longitude));
     }
   }
 
@@ -52,7 +54,7 @@ abstract class CreateOrEditGateBase with Store {
 
   @action
   void initializeMap(LatLng initializeLocation){
-    if(_initialGate == null){
+    if(initialGate == null){
       setLocationChanged(initializeLocation, justLocation: true);
     }
   }
@@ -60,11 +62,12 @@ abstract class CreateOrEditGateBase with Store {
   @action
   void setLocationChanged(LatLng position, {bool justLocation = false}){
     print("setLocationChanged: $position");
-    this.location = position;
-    if(!justLocation){
+    if(justLocation){
+      createOrEditAction = OnLocationUpdated(position: position);
+    } else {
+      this.location = position;
       _updateGateMarker(position);
     }
-    createOrEditAction = OnLocationUpdated(position: position);
   }
 
   void _updateGateMarker(LatLng position) {
@@ -91,7 +94,7 @@ abstract class CreateOrEditGateBase with Store {
 
   void submit(){
     if(location != null){
-      Gate gate =  Gate(id: _initialGate?.id, location: Location(location!.latitude, location!.longitude), name: name!, phoneNumber: phoneNumber!);
+      Gate gate =  Gate(id: initialGate?.id, location: Location(location!.latitude, location!.longitude), name: name!, phoneNumber: phoneNumber!);
       _repository.createGate(gate).then((value) {
         print("submit: save succeeded");
         createOrEditAction = OnGateSaved();

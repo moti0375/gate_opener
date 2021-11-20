@@ -3,11 +3,18 @@
   "my_gates" : "השערים שלי",
   "ok" : "כן",
   "approve" : "אישור",
+  "save" : "שמירה",
   "cancel" : "ביטול",
   "location_permission_title": "הרשאת מיקום",
   "location_permission_rational": "לצורך שימוש באפליקציה יש לקבל הרשאת לגישה למיקום בכל זמן.\nלא יעשה כל שימוש מזיק בהרשאה זו.",
   "activity_permission_title": "הרשאת פעילות גופנית",
   "activity_permission_rational": "לצורך זיהוי נהיגה ברכב יש לקבל הרשאה לגישה לפעילות הגופנית (הכוללת זיהוי רכב).\nלא יעשה כל שימוש מזיק בהרשה זו.",
   "phone_permission_title": "הרשאת שימוש בטלפון",
-  "phone_permission_rational": "לצורך חיוג למערכת הסלולרית של שער חשמלי יש לקבל הרשאת גישה לביצוע חיוג בטלפון שלך.\nלא יעשה כל שימוש מזיק בהרשאה זו."
+  "phone_permission_rational": "לצורך חיוג למערכת הסלולרית של שער חשמלי יש לקבל הרשאת גישה לביצוע חיוג בטלפון שלך.\nלא יעשה כל שימוש מזיק בהרשאה זו.",
+  "create_screen_title": "הוספת שער חדש",
+  "edit_screen_title": "עריכת פרטי שער",
+  "name_edit_title": "עריכת שם",
+  "name_edit_subtitle": "נא להזין שם או תיאור",
+  "phone_edit_title": "עריכת טלפון",
+  "phone_edit_subtitle": "נא להזין מס׳ טלפון לפתיחה"
 }

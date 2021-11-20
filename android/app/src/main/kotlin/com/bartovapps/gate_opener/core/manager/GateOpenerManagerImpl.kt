@@ -53,7 +53,7 @@ class GateOpenerManagerImpl @Inject constructor(
         startAlarmManager()
     }
 
-    override fun getNearestGate(currentLocation: Location): Pair<Gate, Float> {
+    override fun getNearestGate(currentLocation: Location): Pair<Gate, Float>? {
         return availableGates.map {
             Pair(it, Location("gate").apply {
                 latitude = it.location.latitude

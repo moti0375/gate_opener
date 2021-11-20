@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gate_opener/res/colors.dart';
 import 'package:gate_opener/res/dimens.dart';
@@ -57,6 +58,12 @@ class CustomDialog extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 AppTextView(
+                  text: title,
+                  style: Theme.of(context).textTheme.headline6,
+                  textAlign: TextAlign.start,
+                ),
+                SizedBox(height: 8,),
+                AppTextView(
                   text: description,
                   style: Theme.of(context).textTheme.bodyText1,
                   textAlign: TextAlign.start,
@@ -86,7 +93,7 @@ class CustomDialog extends StatelessWidget {
                       DesignedButton(
                         outlined: true,
                         height: 35,
-                        text: "OK",
+                        text: tr('approve'),
                         onPressed: () {
                           Navigator.of(context).pop();
                           if(!inputDialog){
@@ -101,7 +108,7 @@ class CustomDialog extends StatelessWidget {
                       DesignedButton(
                         outlined: true,
                         height: 35,
-                        text: "Cancel",
+                        text: tr('cancel'),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },

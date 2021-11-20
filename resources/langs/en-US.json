@@ -1,0 +1,13 @@
+{
+  "app_title": "Gate Opener",
+  "my_gates" : "My Gates",
+  "ok" : "OK",
+  "approve" : "Approve",
+  "cancel" : "Cancel",
+  "location_permission_title": "Location Permission",
+  "location_permission_rational": "In order to use this app, it is required to grant Always On Location permission.\nNo abuse shall be done with this permission.\nThanks for understanding.",
+  "activity_permission_title": "Activity Permission",
+  "activity_permission_rational": "In order to recognize vehicle driving, it is required to allow access to your Activity.\nNo abuse shall be done with this permission\nThanks for understanding.",
+  "phone_permission_title": "Phone Permission",
+  "phone_permission_rational": "In order to be able dialing to gate, it is required to allow accessing your phone system.\nNo abuse shall be done with this permission\nThanks for understanding."
+}

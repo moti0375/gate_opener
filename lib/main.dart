@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:gate_opener/application.dart';
-
 import 'di/locator.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 void main() async {
   await setupLocator();
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
+  runApp(EasyLocalization(
+      path: 'resources/langs',
+      supportedLocales: [Locale('en', 'US'), Locale('he', 'IL')],
+      fallbackLocale: Locale('en', 'US'),
+      child: MyApp()));
 }

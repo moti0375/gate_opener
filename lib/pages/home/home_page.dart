@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,7 +10,6 @@ import 'package:gate_opener/pages/home/home_page_bloc.dart';
 import 'package:gate_opener/pages/home/home_page_event.dart';
 import 'package:gate_opener/pages/home/home_page_state.dart';
 import 'package:gate_opener/res/colors.dart';
-import 'package:gate_opener/res/strings.dart';
 import 'package:gate_opener/widgets/add_gate_card_item.dart';
 import 'package:gate_opener/widgets/app_text_view.dart';
 import 'package:gate_opener/widgets/custom_dialog.dart';
@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         elevation: 0,
         title: AppTextView(
-          text: MY_GATES_TITLE,
+          text: tr('my_gates'),
         ),
       ),
       body: Padding(
@@ -57,9 +57,8 @@ class _HomePageState extends State<HomePage> {
             if (state is NoLocationPermissionState) {
               _showDialog(
                 context,
-                title: "Location Permission",
-                description:
-                    "In order to use this app, it is required\nto have always on location permission. Thanks for understanding",
+                title: tr('location_permission_title'),
+                description: tr('location_permission_rational'),
                 icon: Icon(
                   Icons.location_on_outlined,
                   size: 35,
@@ -70,12 +69,11 @@ class _HomePageState extends State<HomePage> {
                 },
               );
             }
-            if(state is NoActivityRecognitionPermission){
+            if (state is NoActivityRecognitionPermission) {
               _showDialog(
                 context,
-                title: "Activity Permission",
-                description:
-                "In order to recognize vehicle driving, it is required to allow access to your Activity.\nNo abuse shall be done with this permission",
+                title: tr('activity_permission_title'),
+                description: tr('activity_permission_rational'),
                 icon: Icon(
                   Icons.nordic_walking,
                   size: 35,
@@ -87,12 +85,11 @@ class _HomePageState extends State<HomePage> {
               );
             }
 
-            if(state is NoPhonePermission){
+            if (state is NoPhonePermission) {
               _showDialog(
                 context,
-                title: "Phone Permission",
-                description:
-                "In order to be able dialing to gate, it is required to allow accessing your phone system.\nNo abuse shall be done with this permission",
+                title: tr('phone_permission_title'),
+                description: tr('phone_permission_rational'),
                 icon: Icon(
                   Icons.phone_forwarded_sharp,
                   size: 35,
@@ -103,7 +100,6 @@ class _HomePageState extends State<HomePage> {
                 },
               );
             }
-
 
             if (state is PermissionGranted) {
               navigateToMapPage(initialGate: null);

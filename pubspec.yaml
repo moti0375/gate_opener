@@ -40,6 +40,7 @@ dependencies:
   get_it: ^7.2.0
   geolocator: ^7.7.1
   permission_handler: ^8.1.6
+  easy_localization: ^3.0.0
 
 #Build Runner Command: -> flutter pub run build_runner build --delete-conflicting-outputs
 dev_dependencies:
@@ -59,15 +60,16 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
+  # To add resources to your application, add an resources section, like this:
+  assets:
+      - resources/langs/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
-  # For details regarding adding assets from package dependencies, see
+  # For details regarding adding resources from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 
   # To add custom fonts to your application, add a fonts section here,

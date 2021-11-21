@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gate_opener/generated/locale_keys.g.dart';
 import 'package:gate_opener/pages/home/home_page.dart';
 import 'package:gate_opener/res/colors.dart';
 import 'package:gate_opener/res/dimens.dart';
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
     ]);
 
     return MaterialApp(
-      title: tr('app_title'),
+      title: LocaleKeys.app_title.tr(),
       theme: ThemeData(
           inputDecorationTheme: Theme.of(context)
               .inputDecorationTheme

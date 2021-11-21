@@ -42,6 +42,10 @@ dependencies:
   permission_handler: ^8.1.6
   easy_localization: ^3.0.0
 
+#Easy Localization Build Commands:
+# flutter pub run easy_localization:generate
+# flutter pub run easy_localization:generate -f keys -o locale_keys.g.dart
+
 #Build Runner Command: -> flutter pub run build_runner build --delete-conflicting-outputs
 dev_dependencies:
   flutter_test:

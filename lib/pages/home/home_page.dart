@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gate_opener/data/model/gate.dart';
 import 'package:gate_opener/data/repository/gate_opener_repository.dart';
 import 'package:gate_opener/di/locator.dart';
+import 'package:gate_opener/generated/locale_keys.g.dart';
 import 'package:gate_opener/pages/create_or_edit_gate_page/create_or_edit_gate_page.dart';
 import 'package:gate_opener/pages/home/home_page_bloc.dart';
 import 'package:gate_opener/pages/home/home_page_event.dart';
@@ -45,7 +46,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         elevation: 0,
         title: AppTextView(
-          text: tr('my_gates'),
+          text: LocaleKeys.my_gates.tr(),
         ),
       ),
       body: Padding(
@@ -57,8 +58,8 @@ class _HomePageState extends State<HomePage> {
             if (state is NoLocationPermissionState) {
               _showDialog(
                 context,
-                title: tr('location_permission_title'),
-                description: tr('location_permission_rational'),
+                title: LocaleKeys.location_permission_title.tr(),
+                description: LocaleKeys.location_permission_rational.tr(),
                 icon: Icon(
                   Icons.location_on_outlined,
                   size: 35,
@@ -72,8 +73,8 @@ class _HomePageState extends State<HomePage> {
             if (state is NoActivityRecognitionPermission) {
               _showDialog(
                 context,
-                title: tr('activity_permission_title'),
-                description: tr('activity_permission_rational'),
+                title: LocaleKeys.activity_permission_title.tr(),
+                description: LocaleKeys.activity_permission_rational.tr(),
                 icon: Icon(
                   Icons.nordic_walking,
                   size: 35,
@@ -88,8 +89,8 @@ class _HomePageState extends State<HomePage> {
             if (state is NoPhonePermission) {
               _showDialog(
                 context,
-                title: tr('phone_permission_title'),
-                description: tr('phone_permission_rational'),
+                title: LocaleKeys.phone_permission_title.tr(),
+                description: LocaleKeys.phone_permission_rational.tr(),
                 icon: Icon(
                   Icons.phone_forwarded_sharp,
                   size: 35,
@@ -139,8 +140,12 @@ class _HomePageState extends State<HomePage> {
                       subtitle: gates[index].phoneNumber,
                       onPressed: () =>
                           navigateToMapPage(initialGate: gates[index]),
-                      onLongPressed: () =>
-                          _showDeleteDialog(gates[index], context),
+                      onLongPressed: () => _showDialog(
+                        context,
+                        title: LocaleKeys.gate_delete_title.tr(),
+                        description: LocaleKeys.gate_delete_subtitle.tr(),
+                        icon: Icon(Icons.delete, size: 35,),onSubmitted: (_) =>  context.read<HomePageBloc>().add(DeleteGate(gates[index].id!))
+                      ),
                     ),
                   )));
   }
@@ -165,7 +170,6 @@ class _HomePageState extends State<HomePage> {
                   height: 40,
                   text: "Yes",
                   onPressed: () {
-                    context.read<HomePageBloc>().add(DeleteGate(gate.id!));
                     Navigator.of(context).pop();
                   },
                 ),

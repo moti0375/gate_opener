@@ -16,6 +16,7 @@
   "name_edit_title": "Edit Gate Name",
   "name_edit_subtitle": "Enter gate name",
   "phone_edit_title": "Gate Number",
-  "phone_edit_subtitle": "Enter gate phone number"
-
+  "phone_edit_subtitle": "Enter gate phone number",
+  "gate_delete_title": "Delete gate",
+  "gate_delete_subtitle": "Delete this gate?"
 }

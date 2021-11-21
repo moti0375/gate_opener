@@ -16,5 +16,7 @@
   "name_edit_title": "עריכת שם",
   "name_edit_subtitle": "נא להזין שם או תיאור",
   "phone_edit_title": "עריכת טלפון",
-  "phone_edit_subtitle": "נא להזין מס׳ טלפון לפתיחה"
+  "phone_edit_subtitle": "נא להזין מס׳ טלפון לפתיחה",
+  "gate_delete_title": "מחיקת שער",
+  "gate_delete_subtitle": "למחוק את השער הזה?"
 }

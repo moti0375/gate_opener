@@ -7,6 +7,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:gate_opener/data/model/gate.dart';
 import 'package:gate_opener/data/repository/gate_opener_repository.dart';
 import 'package:gate_opener/di/locator.dart';
+import 'package:gate_opener/generated/locale_keys.g.dart';
 import 'package:gate_opener/res/colors.dart';
 import 'package:gate_opener/utils/string_utils.dart';
 import 'package:gate_opener/widgets/app_text_view.dart';
@@ -70,7 +71,7 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Observer(builder:  (_) => Text(widget.store.initialGate != null ? tr('edit_screen_title') : tr('create_screen_title'))),
+        title: Observer(builder:  (_) => Text(widget.store.initialGate != null ? LocaleKeys.edit_screen_title.tr() : LocaleKeys.create_screen_title.tr())),
         elevation: 0,
       ),
       resizeToAvoidBottomInset: false,
@@ -113,7 +114,7 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
                     builder: (_) => DesignedButton(
                       color: AppColors.shareButton,
                       height: 60,
-                      text: tr('save'),
+                      text: LocaleKeys.save.tr(),
                       onPressed: widget.store.formValid
                           ? () => widget.store.submit()
                           : null,
@@ -321,8 +322,8 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
           print("ShowSetNameDialog: ${(action as ShowSetNameDialog).name}");
           _showDialog(context,
               initialValue: action.name,
-              title: tr('name_edit_title'),
-              description: tr('name_edit_subtitle'),
+              title: LocaleKeys.name_edit_title.tr(),
+              description: LocaleKeys.name_edit_subtitle.tr(),
               icon: Icon(
                 Icons.description,
                 size: 50,
@@ -336,8 +337,8 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
         {
           _showDialog(context,
               initialValue: (action as ShowEditPhoneDialog).phoneNumber,
-              title: tr('phone_edit_title'),
-              description: tr('phone_edit_subtitle'),
+              title: LocaleKeys.phone_edit_title.tr(),
+              description: LocaleKeys.phone_edit_subtitle.tr(),
               icon: Icon(
                 Icons.settings_cell_outlined,
                 size: 50,

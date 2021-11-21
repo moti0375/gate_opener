@@ -156,33 +156,6 @@ class _HomePageState extends State<HomePage> {
             CreateOrEditGatePage.create(initialGate: initialGate)));
   }
 
-  Future _showDeleteDialog(Gate gate, BuildContext context) async {
-    return showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: Text(
-                "Delete this gate?",
-                style: Theme.of(context).textTheme.bodyText1,
-              ),
-              actions: [
-                DesignedButton(
-                  color: AppColors.shareButton,
-                  height: 40,
-                  text: "Yes",
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                DesignedButton(
-                  color: AppColors.shareButton,
-                  height: 40,
-                  text: "No",
-                  onPressed: () => Navigator.of(context).pop(),
-                )
-              ],
-            ));
-  }
-
   void _showDialog(BuildContext context,
       {required String title,
       required String description,

@@ -35,23 +35,14 @@ class ActivityDetectionProcessorImpl @Inject constructor(
 
     override fun onActivityTransition(transitionResult: ActivityTransitionResult?) {
         Log.i(TAG, "onActivityTransition: ${transitionResult?.transitionEvents}")
+        transitionResult?.transitionEvents?.firstOrNull { it.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER }?.let {
+            if(it.activityType == IN_VEHICLE){
+                handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+            } else {
+                handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
 
-        transitionResult?.transitionEvents?.firstOrNull { it.activityType == IN_VEHICLE }?.also {
-            handleVehicleTransitionChange(it.transitionType)
+            }
         }
-
-//        transitionResult?.transitionEvents?.forEach {
-//            when (it.activityType) {
-//                IN_VEHICLE -> {
-//                    return
-//                }
-//                else -> {
-//                    if(it.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER) { //Starting activity other than vehicle
-//                        handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-//                    }
-//                }
-//            }
-//        }
     }
 
     private fun handleVehicleTransitionChange(transitionType: Int) {
@@ -64,7 +55,6 @@ class ActivityDetectionProcessorImpl @Inject constructor(
             analytics.sendEvent(ActivityRecognitionEvent(name = ActivityRecognitionEvent.EVENT_NAME.EXIT_VEHICLE))
             gateOpenerManager.onExitVehicle() //Out of car, stop all services!
         }
-
     }
 
     companion object {

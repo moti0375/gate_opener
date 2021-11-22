@@ -19,7 +19,6 @@ import javax.inject.Singleton
 
 private val INTERESTING_TRANSITION = intArrayOf(
     DetectedActivity.IN_VEHICLE,
-    DetectedActivity.ON_FOOT,
     DetectedActivity.WALKING,
 )
 
@@ -41,12 +40,12 @@ class ActivityDetectorImpl @Inject constructor(@ApplicationContext context: Cont
                     .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
                     .build()
             )
-            transitions.add(
-                ActivityTransition.Builder()
-                    .setActivityType(activity)
-                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                    .build()
-            )
+//            transitions.add(
+//                ActivityTransition.Builder()
+//                    .setActivityType(activity)
+//                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+//                    .build()
+//            )
         }
 
         val request = ActivityTransitionRequest(transitions)

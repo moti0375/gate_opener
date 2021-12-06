@@ -20,6 +20,8 @@ import javax.inject.Singleton
 private val INTERESTING_TRANSITION = intArrayOf(
     DetectedActivity.IN_VEHICLE,
     DetectedActivity.WALKING,
+    DetectedActivity.STILL,
+    DetectedActivity.ON_FOOT
 )
 
 @Singleton

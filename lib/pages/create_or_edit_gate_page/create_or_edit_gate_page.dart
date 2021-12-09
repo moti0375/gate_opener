@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'dart:collection';
 
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -28,11 +29,12 @@ class CreateOrEditGatePage extends StatefulWidget {
   _CreateOrEditGatePageState createState() => _CreateOrEditGatePageState();
 
   static Widget create({Gate? initialGate}) {
+    print("CreateOrEditGatePage: create: $initialGate");
     return Provider<CreateOrEditStore>(
-      create: (_) =>
-          CreateOrEditStore(locator<GateOpenerRepository>(), initialGate),
+      create: (_) => CreateOrEditStore(locator<GateOpenerRepository>(), initialGate),
       child: Consumer<CreateOrEditStore>(
-          builder: (context, store, child) => CreateOrEditGatePage(
+          builder: (context, store, child) =>
+              CreateOrEditGatePage(
                 store: store,
               )),
     );
@@ -57,8 +59,8 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    mobxDispose ??= reaction((_) => widget.store.createOrEditAction,
-        (CreateOrEditAction? value) => _handleActionChange(value));
+    mobxDispose ??=
+        reaction((_) => widget.store.createOrEditAction, (CreateOrEditAction? value) => _handleActionChange(value));
   }
 
   @override
@@ -67,11 +69,92 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
     super.dispose();
   }
 
+  Widget _buildMapSection() {
+    return SizedBox(
+        height: MediaQuery.of(context).size.height * 1 / 3,
+        child: Observer(
+        builder: (_)
+    {
+      final Marker? availableMarker = widget.store.marker;
+      final LatLng? currentLocation = widget.store.location;
+      return ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+        child: GoogleMap(
+          markers: availableMarker != null ? Set.of({availableMarker}) : HashSet(),
+          onTap: _onMapClicked,
+          mapType: MapType.normal,
+          myLocationButtonEnabled: true,
+          myLocationEnabled: true,
+          initialCameraPosition: CameraPosition(
+              target: currentLocation != null ? currentLocation : LatLng(0, 0),
+              zoom: currentLocation != null ? 15 : 10),
+          onMapCreated: (GoogleMapController controller) {
+            _controller.complete(controller);
+            _googleMapController = controller;
+          },
+          onCameraMove: _onCameraMoved,
+        ),
+      );
+    },)
+    ,
+    );
+  }
+
+  Widget _locationPane() {
+    return Observer(
+      builder: (_) =>
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "${widget.store.location?.latitude ?? StringUtils.EMPTY_STRING}",
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .headline3,
+                      maxLines: 1,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.clip,
+                    )),
+              ),
+              SizedBox(
+                height: 35,
+                child: VerticalDivider(
+                  thickness: 4,
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  child: Text(
+                    "${widget.store.location?.longitude ?? StringUtils.EMPTY_STRING}",
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .headline3,
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.clip,
+                  ),
+                ),
+              )
+            ],
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Observer(builder:  (_) => Text(widget.store.initialGate != null ? LocaleKeys.edit_screen_title.tr() : LocaleKeys.create_screen_title.tr())),
+        title: Observer(
+            builder: (_) =>
+                Text(widget.store.initialGate != null
+                    ? LocaleKeys.edit_screen_title.tr()
+                    : LocaleKeys.create_screen_title.tr())),
         elevation: 0,
       ),
       resizeToAvoidBottomInset: false,
@@ -80,45 +163,25 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 1 / 3,
-              child: Observer(
-                builder: (_) => ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
-                  child: GoogleMap(
-                    markers: widget.store.markers,
-                    onTap: _onMapClicked,
-                    mapType: MapType.normal,
-                    myLocationButtonEnabled: true,
-                    myLocationEnabled: true,
-                    initialCameraPosition: CameraPosition(
-                        target: widget.store.location ??= LatLng(0, 0),
-                        zoom: 15),
-                    onMapCreated: (GoogleMapController controller) {
-                      _controller.complete(controller);
-                      _googleMapController = controller;
-                    },
-                    onCameraMove: _onCameraMoved,
-                  ),
-                ),
-              ),
-            ),
+            _buildMapSection(),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _createFormSection(context),
-                  Spacer(),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  _locationPane(),
+                  Expanded(child: _createFormSection(context)),
                   Observer(
-                    builder: (_) => DesignedButton(
-                      color: AppColors.shareButton,
-                      height: 60,
-                      text: LocaleKeys.save.tr(),
-                      onPressed: widget.store.formValid
-                          ? () => widget.store.submit()
-                          : null,
-                    ),
+                    builder: (_) =>
+                        DesignedButton(
+                          color: AppColors.shareButton,
+                          height: 60,
+                          text: LocaleKeys.save.tr(),
+                          onPressed: widget.store.formValid ? () => widget.store.submit() : null,
+                        ),
                   )
                 ],
               ),
@@ -132,8 +195,7 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
   void _initializeMap() async {
     Position? locationData = await _getCurrentPosition();
     if (locationData != null) {
-      widget.store
-          .initializeMap(LatLng(locationData.latitude, locationData.longitude));
+      widget.store.initializeMap(LatLng(locationData.latitude, locationData.longitude));
       //widget.store.setLocationChanged(LatLng(locationData.latitude, locationData.longitude));
       // _moveMapToPosition(
       //     LatLng(locationData.latitude, locationData.longitude), currentZoom);
@@ -193,8 +255,7 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
 
   void _moveMapToPosition(LatLng position, zoom) {
     CameraPosition camPosition = CameraPosition(target: position, zoom: zoom);
-    _googleMapController
-        .moveCamera(CameraUpdate.newCameraPosition(camPosition));
+    _googleMapController.moveCamera(CameraUpdate.newCameraPosition(camPosition));
   }
 
   void _onCameraMoved(CameraPosition position) {
@@ -209,70 +270,37 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
       child: Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Observer(
-            builder: (_) => Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "${widget.store.location?.latitude ?? StringUtils.EMPTY_STRING}",
-                        style: Theme.of(context).textTheme.headline3,
-                        maxLines: 1,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.clip,
-                      )),
-                ),
-                SizedBox(
-                  height: 35,
-                  child: VerticalDivider(
-                    thickness: 4,
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    child: Text(
-                      "${widget.store.location?.longitude ?? StringUtils.EMPTY_STRING}",
-                      style: Theme.of(context).textTheme.headline3,
-                      maxLines: 1,
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.clip,
+            builder: (_) =>
+                AppTextView(
+                    text: widget.store.name ??= "",
+                    rightIcon: Icon(
+                      Icons.create,
+                      size: 50,
                     ),
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .headline6,
+                    onRightIconClicked: () => widget.store.onSetNameClicked()),
+          ),
+          Observer(
+            builder: (_) =>
+                AppTextView(
+                  text: widget.store.phoneNumber ??= "",
+                  rightIcon: Icon(
+                    Icons.phone,
+                    size: 50,
                   ),
-                )
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 16,
-          ),
-          Observer(
-            builder: (_) => AppTextView(
-                text: widget.store.name ??= "",
-                rightIcon: Icon(
-                  Icons.create,
-                  size: 50,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .headline6,
+                  textDirection: TextDirection.ltr,
+                  onRightIconClicked: () => widget.store.onSetPhoneClicked(),
                 ),
-                style: Theme.of(context).textTheme.headline6,
-                onRightIconClicked: () => widget.store.onSetNameClicked()),
-          ),
-          SizedBox(
-            height: 16,
-          ),
-          Observer(
-            builder: (_) => AppTextView(
-              text: widget.store.phoneNumber ??= "",
-              rightIcon: Icon(
-                Icons.phone,
-                size: 50,
-              ),
-              style: Theme.of(context).textTheme.headline6,
-              onRightIconClicked: () => widget.store.onSetPhoneClicked(),
-            ),
           )
         ],
       ),
@@ -285,14 +313,16 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
 
   void _showDialog(BuildContext context,
       {required String title,
-      required String description,
-      String? initialValue,
-      icon,
-      required ValueChanged onSubmitted,
-      TextInputType inputType = TextInputType.text}) async {
+        required String description,
+        String? initialValue,
+        icon,
+        required ValueChanged onSubmitted,
+        TextInputType inputType = TextInputType.text,
+        TextDirection? textDirection}) async {
     showDialog(
         context: context,
-        builder: (context) => CustomDialog(
+        builder: (context) =>
+            CustomDialog(
               inputDialog: true,
               initialValue: initialValue,
               title: title,
@@ -300,6 +330,7 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
               icon: icon,
               onSubmitted: onSubmitted,
               textInputType: inputType,
+              inputTextDirection: textDirection,
             ));
   }
 
@@ -313,8 +344,7 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
         }
       case OnLocationUpdated:
         {
-          _moveMapToPosition(
-              (action as OnLocationUpdated).position, currentZoom);
+          _moveMapToPosition((action as OnLocationUpdated).position, currentZoom);
           break;
         }
       case ShowSetNameDialog:
@@ -327,10 +357,11 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
               icon: Icon(
                 Icons.description,
                 size: 50,
-              ), onSubmitted: (text) {
-            print("onSubmitted: $text");
-            widget.store.setName(text);
-          });
+              ),
+              onSubmitted: (text) {
+                print("onSubmitted: $text");
+                widget.store.setName(text);
+              });
           break;
         }
       case ShowEditPhoneDialog:
@@ -344,8 +375,10 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
                 size: 50,
               ),
               onSubmitted: (text) => widget.store.setPhoneNumber(text),
-              inputType: TextInputType.phone);
+              inputType: TextInputType.phone,
+              textDirection: TextDirection.ltr);
         }
     }
   }
+
 }

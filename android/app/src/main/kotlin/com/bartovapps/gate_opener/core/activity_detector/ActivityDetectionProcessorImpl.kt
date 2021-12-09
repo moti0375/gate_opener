@@ -26,7 +26,7 @@ class ActivityDetectionProcessorImpl @Inject constructor(
         isInVehicle = highestConfidenceActivity?.let {
             if (it.type == IN_VEHICLE && it.confidence >= VEHICLE_HIGH_CONFIDENCE) {
                 stillPeriodTime = null
-                if (!isInVehicle) {
+                if (!isInVehicle) {  //User starts driving car!!
                     handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
                     true
                 } else {
@@ -40,7 +40,7 @@ class ActivityDetectionProcessorImpl @Inject constructor(
                                 Log.i(TAG, "Stopped: stillTime: $stillTime")
                                 val stopPeriod = System.currentTimeMillis() - stillTime
                                 Log.i(TAG, "Stopped: stopPeriod: $stopPeriod")
-                                if (stopPeriod >= STILL_THRESHOLD) { //It is standing still too much.. Probably out of car
+                                if (stopPeriod >= STILL_THRESHOLD) { //It is standing still too much.. Probably out of car or engine turned off for long time, out of the car!
                                     Log.i(TAG, "Long still, exit vehicle")
                                     handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
                                     false
@@ -59,7 +59,7 @@ class ActivityDetectionProcessorImpl @Inject constructor(
                             stillPeriodTime = null
                             false
                         }
-                        else -> {
+                        else -> { //Some other activity rather then still, low confidence so reset still timer and return inVehicle as is
                             stillPeriodTime = null
                             isInVehicle
                         }

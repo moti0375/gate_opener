@@ -35,7 +35,7 @@ abstract class CreateOrEditGateBase with Store {
   LatLng? location;
 
   @observable
-  Set<Marker> markers = HashSet();
+  Marker? marker;
 
   @observable
   String? phoneNumber;
@@ -62,18 +62,15 @@ abstract class CreateOrEditGateBase with Store {
   @action
   void setLocationChanged(LatLng position, {bool justLocation = false}){
     print("setLocationChanged: $position");
-    if(justLocation){
-      createOrEditAction = OnLocationUpdated(position: position);
-    } else {
+    createOrEditAction = OnLocationUpdated(position: position);
+    if(!justLocation){
       this.location = position;
       _updateGateMarker(position);
     }
   }
 
   void _updateGateMarker(LatLng position) {
-    Marker marker = Marker(markerId: MarkerId("GateMarker"), position: position);
-    markers.clear();
-    markers.add(marker);
+    marker = Marker(markerId: MarkerId("GateMarker"), position: position);
   }
 
   @action

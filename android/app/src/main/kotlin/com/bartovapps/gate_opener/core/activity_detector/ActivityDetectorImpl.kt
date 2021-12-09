@@ -42,16 +42,8 @@ class ActivityDetectorImpl @Inject constructor(@ApplicationContext context: Cont
                     .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
                     .build()
             )
-//            transitions.add(
-//                ActivityTransition.Builder()
-//                    .setActivityType(activity)
-//                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-//                    .build()
-//            )
         }
 
-        val request = ActivityTransitionRequest(transitions)
-        val transitionTask: Task<Void> = mActivityRecognitionClient.requestActivityTransitionUpdates(request, mActivityTransitionPendingIntent)
         val task: Task<Void> = mActivityRecognitionClient.requestActivityUpdates(ACTIVITY_UPDATES_INTERVAL, mActivityTransitionPendingIntent)
         task.addOnSuccessListener {
             analytics.sendEvent(ActivityRecognitionEvent(name = ActivityRecognitionEvent.EVENT_NAME.ACTIVITY_DETECT_STARTED))
@@ -59,14 +51,6 @@ class ActivityDetectorImpl @Inject constructor(@ApplicationContext context: Cont
         }
         task.addOnFailureListener { e ->
             Log.e(TAG, "ActivityDetector sensor failed to start: ${e.message}")
-            analytics.sendEvent(ActivityRecognitionEvent(name = ActivityRecognitionEvent.EVENT_NAME.ACTIVITY_DETECT_FAILURE).setDetails(bundle = bundleOf("details" to e.cause)))
-        }
-        transitionTask.addOnSuccessListener {
-            Log.i(TAG, "Transition sensor started successfully")
-            analytics.sendEvent(ActivityRecognitionEvent(name = ActivityRecognitionEvent.EVENT_NAME.TRANSITION_DETECT_STARTED))
-        }
-        transitionTask.addOnFailureListener { e ->
-            Log.e(TAG, "Transition sensor failed to start: ${e.message}")
             analytics.sendEvent(ActivityRecognitionEvent(name = ActivityRecognitionEvent.EVENT_NAME.ACTIVITY_DETECT_FAILURE).setDetails(bundle = bundleOf("details" to e.cause)))
         }
     }

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:gate_opener/res/colors.dart';
 
@@ -20,23 +21,25 @@ class AppTextView extends StatelessWidget {
   final VoidCallback? onRightIconClicked;
   final double? lettersSpacing;
   final TextStyle? style;
+  final TextDirection? textDirection;
 
-  const AppTextView(
+  AppTextView(
       {Key? key,
-        @required this.text,
-        this.color = AppColors.black,
-        this.textAlign,
-        this.rightIcon,
-        this.leftIcon,
-        this.iconPadding = _DEFAULT_PADDING,
-        this.contentPadding = _DEFAULT_PADDING,
-        this.maxLines,
-        this.textOverflow,
-        this.onRightIconClicked,
-        this.onLeftIconClicked,
-        this.symetricPadding = true,
-        this.style,
-        this.lettersSpacing})
+      @required this.text,
+      this.color = AppColors.black,
+      this.textAlign,
+      this.rightIcon,
+      this.leftIcon,
+      this.iconPadding = _DEFAULT_PADDING,
+      this.contentPadding = _DEFAULT_PADDING,
+      this.maxLines,
+      this.textOverflow,
+      this.onRightIconClicked,
+      this.onLeftIconClicked,
+      this.symetricPadding = true,
+      this.style,
+      this.lettersSpacing,
+      this.textDirection})
       : super(key: key);
 
   @override
@@ -70,6 +73,7 @@ class AppTextView extends StatelessWidget {
               maxLines: maxLines,
               textAlign: textAlign,
               style: style,
+              textDirection: textDirection
             ),
           ),
         ),

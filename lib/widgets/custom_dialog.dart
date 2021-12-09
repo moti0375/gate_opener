@@ -1,4 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:gate_opener/res/colors.dart';
 import 'package:gate_opener/res/dimens.dart';
@@ -13,6 +13,7 @@ class CustomDialog extends StatelessWidget {
   final Icon icon;
   final ValueChanged<String?>? onSubmitted;
   final TextInputType textInputType;
+  final TextDirection? inputTextDirection;
 
   const CustomDialog(
       {Key? key,
@@ -22,7 +23,8 @@ class CustomDialog extends StatelessWidget {
       this.inputDialog = false,
       this.initialValue,
       this.onSubmitted,
-      this.textInputType = TextInputType.text})
+      this.textInputType = TextInputType.text,
+      this.inputTextDirection})
       : super(key: key);
 
   @override
@@ -75,6 +77,7 @@ class CustomDialog extends StatelessWidget {
                     controller: controller,
                     style: Theme.of(context).textTheme.bodyText2,
                     keyboardType: textInputType,
+                    textDirection: inputTextDirection,
                     autofocus: true,
                     onChanged: (t) {
                       text = t;

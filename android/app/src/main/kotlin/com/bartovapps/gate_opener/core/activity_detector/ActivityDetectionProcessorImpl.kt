@@ -1,5 +1,6 @@
 package com.bartovapps.gate_opener.core.activity_detector
 
+import android.content.Context
 import android.util.Log
 import com.bartovapps.gate_opener.analytics.event.ActivityRecognitionEvent
 import com.bartovapps.gate_opener.analytics.manager.Analytics
@@ -8,6 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import com.google.android.gms.location.*
 import com.bartovapps.gate_opener.core.manager.GateOpenerManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 
 @Singleton
@@ -22,7 +24,7 @@ class ActivityDetectionProcessorImpl @Inject constructor(
     override fun onActivitiesDetected(detectedActivities: List<DetectedActivity>) {
         Log.i(TAG, "onActivitiesDetected: detectedActivities: $detectedActivities")
         val highestConfidenceActivity: DetectedActivity? = detectedActivities.filter { it.type != TILTING && it.type != UNKNOWN }.maxByOrNull { act -> act.confidence }
-        Log.i(TAG, "processDetectedActivities: highestConfidenceActivity: $highestConfidenceActivity, inVehicle: $isInVehicle")
+        Log.i(TAG, "Activity: $highestConfidenceActivity")
         isInVehicle = highestConfidenceActivity?.let {
             if (it.type == IN_VEHICLE && it.confidence >= VEHICLE_HIGH_CONFIDENCE) {
                 stillPeriodTime = null
@@ -39,13 +41,13 @@ class ActivityDetectionProcessorImpl @Inject constructor(
                             stillPeriodTime?.let { stillTime ->
                                 Log.i(TAG, "Stopped: stillTime: $stillTime")
                                 val stopPeriod = System.currentTimeMillis() - stillTime
-                                Log.i(TAG, "Stopped: stopPeriod: $stopPeriod")
+                                Log.i(TAGX, "Stopped: stopPeriod: $stopPeriod")
                                 if (stopPeriod >= STILL_THRESHOLD) { //It is standing still too much.. Probably out of car or engine turned off for long time, out of the car!
-                                    Log.i(TAG, "Long still, exit vehicle")
+                                    Log.i(TAGX, "Long still, exit vehicle")
                                     handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
                                     false
                                 } else { //Lets wait a bit..
-                                    Log.i(TAG, "Stopped, but not enough for exit vehicle")
+                                    Log.i(TAGX, "Stopped, but not enough for exit vehicle")
                                     isInVehicle
                                 }
                             } ?: run { //User stopped, lets start measure its still period
@@ -54,7 +56,7 @@ class ActivityDetectionProcessorImpl @Inject constructor(
                                 isInVehicle
                             }
                         }
-                        it.confidence >= ACTIVITY_CONFIDENCE -> { //It none vehicle activity (WALKING, ON_FOOT, RUNNING etc') in good confidence Out of car!!!
+                        it.confidence >= OTHER_ACTIVITY_CONFIDENCE -> { //It none vehicle activity (WALKING, ON_FOOT, RUNNING etc') in good confidence Out of car!!!
                             handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
                             stillPeriodTime = null
                             false
@@ -72,25 +74,13 @@ class ActivityDetectionProcessorImpl @Inject constructor(
         } ?: isInVehicle //Couldn't find a highest activity.. Keep vehicle state as is
     }
 
-    override fun onActivityTransition(transitionResult: ActivityTransitionResult?) {
-//        Log.i(TAG, "onActivityTransition: ${transitionResult?.transitionEvents}")
-//        transitionResult?.transitionEvents?.firstOrNull { it.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER }?.let {
-//            if(it.activityType == IN_VEHICLE){
-//                handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-//            } else {
-//                handleVehicleTransitionChange(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-//
-//            }
-//        }
-    }
-
     private fun handleVehicleTransitionChange(transitionType: Int) {
         if (transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER) {
-            Log.i(TAG, "handleVehicleTransitionChange: Entered vehicle: ")
+            Log.i(TAGX, "handleVehicleTransitionChange: Entered vehicle: ")
             analytics.sendEvent(ActivityRecognitionEvent(name = ActivityRecognitionEvent.EVENT_NAME.ENTERED_VEHICLE))
             gateOpenerManager.onEnteredVehicle() //Starting everything..
         } else {
-            Log.i(TAG, "handleVehicleTransitionChange: Exit vehicle: ")
+            Log.i(TAGX, "handleVehicleTransitionChange: Exit vehicle: ")
             analytics.sendEvent(ActivityRecognitionEvent(name = ActivityRecognitionEvent.EVENT_NAME.EXIT_VEHICLE))
             gateOpenerManager.onExitVehicle() //Out of car, stop all services!
         }
@@ -98,8 +88,9 @@ class ActivityDetectionProcessorImpl @Inject constructor(
 
     companion object {
         private const val TAG = "ActivityProcessor"
+        private const val TAGX = "XXX: ActivityProcessor"
         private const val STILL_THRESHOLD = 60000
-        private const val VEHICLE_HIGH_CONFIDENCE = 75
-        private const val ACTIVITY_CONFIDENCE = 45
+        private const val VEHICLE_HIGH_CONFIDENCE = 50
+        private const val OTHER_ACTIVITY_CONFIDENCE = 45
     }
 }

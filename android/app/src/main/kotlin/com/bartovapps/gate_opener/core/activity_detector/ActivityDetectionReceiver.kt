@@ -19,11 +19,6 @@ class ActivityDetectionReceiver : BroadcastReceiver() {
 
         Log.i(TAG, "onReceive:  ${intent?.extras}")
         intent?.let {
-            if(ActivityTransitionResult.hasResult(it)){
-                Log.i(TAG, "onReceive:  hasTransition..")
-                activityDetectionProcessor.onActivityTransition(ActivityTransitionResult.extractResult(it))
-            }
-
             if (ActivityRecognitionResult.hasResult(it)) {
                 Log.i(TAG, "onReceive: hasResult: ${it.toString()} ")
                 processDetectedActivities(ActivityRecognitionResult.extractResult(it)?.probableActivities)

@@ -5,10 +5,13 @@ import android.content.Context
 import android.location.LocationManager
 import androidx.room.Room
 import com.bartovapps.gate_opener.core.activators.Activator
-import com.bartovapps.gate_opener.core.activators.AlarmManagerActivator
+import com.bartovapps.gate_opener.core.alarm.AlarmManagerActivator
 import com.bartovapps.gate_opener.core.activity_detector.ActivityDetectionProcessor
 import com.bartovapps.gate_opener.core.activity_detector.ActivityDetectionProcessorImpl
 import com.bartovapps.gate_opener.core.activity_detector.ActivityDetectorImpl
+import com.bartovapps.gate_opener.core.alarm.AlarmScheduleCalculator
+import com.bartovapps.gate_opener.core.alarm.AlarmScheduleCalculatorImpl
+import com.bartovapps.gate_opener.core.alarm.AlarmScheduler
 import com.bartovapps.gate_opener.core.dialer.Dialer
 import com.bartovapps.gate_opener.core.dialer.DialerImpl
 import com.bartovapps.gate_opener.core.manager.GateOpenerManager
@@ -48,11 +51,13 @@ abstract class AppModule {
     abstract fun bindsRepository(gatesRepository: GatesRepositoryImpl) : GatesRepository
 
     @Binds
-    @QAlarmManagerActivator
-    abstract fun bindAlarmManagerActivator(alarmManagerActivator: AlarmManagerActivator) : Activator
+    abstract fun bindGateOpenerManager(gateOpenerManagerImpl: GateOpenerManagerImpl) : GateOpenerManager
 
     @Binds
-    abstract fun bindGateOpenerManager(gateOpenerManagerImpl: GateOpenerManagerImpl) : GateOpenerManager
+    abstract fun bindAlarmScheduler(scheduler: AlarmManagerActivator) : AlarmScheduler
+
+    @Binds
+    abstract fun bindAlarmScheduleCalc(scheduleCalculator: AlarmScheduleCalculatorImpl) : AlarmScheduleCalculator
 
     companion object{
         @Provides

@@ -11,17 +11,15 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.bartovapps.gate_opener.R
-import com.bartovapps.gate_opener.analytics.event.Event
 import com.bartovapps.gate_opener.analytics.event.GeofenceEvent
 import com.bartovapps.gate_opener.analytics.manager.Analytics
 import com.bartovapps.gate_opener.utils.PermissionsHelper
-import com.bartovapps.gate_opener.core.GateOpenerService.Companion.FOREGROUND_SERVICE_ID
 import com.bartovapps.gate_opener.core.dialer.Dialer
 import com.bartovapps.gate_opener.core.formatters.Formatter
-import com.bartovapps.gate_opener.core.formatters.SpeedFormatter
 import com.bartovapps.gate_opener.core.geofence.GateGeofenceService.Companion.GEOFENCE_ENTER_RADIUS
 import com.bartovapps.gate_opener.core.geofence.GateGeofenceService.Companion.GEOFENCE_EXIT_FACTOR
 import com.bartovapps.gate_opener.core.manager.GateOpenerManager
+import com.bartovapps.gate_opener.core.manager.GateOpenerManagerImpl.Companion.GATE_OPENER_NOTIFICATION_ID
 import com.bartovapps.gate_opener.model.Gate
 import com.bartovapps.gate_opener.utils.FG_CHANNEL
 import com.bartovapps.gate_opener.utils.kmhToMsec
@@ -110,7 +108,7 @@ class LocationHelper @Inject constructor(
             .setSmallIcon(R.drawable.ic_parking_barrier)
             .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_parking_barrier))
             .setContentText(message)
-        mNotificationManager.notify(FOREGROUND_SERVICE_ID, builder.build())
+        mNotificationManager.notify(GATE_OPENER_NOTIFICATION_ID, builder.build())
     }
 
     private fun makeCall(gate: Gate) {

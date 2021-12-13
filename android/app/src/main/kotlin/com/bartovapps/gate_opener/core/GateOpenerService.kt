@@ -1,14 +1,15 @@
 package com.bartovapps.gate_opener.core
-import android.app.AlarmManager
+
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import com.bartovapps.gate_opener.core.geofence.GateAlarmReceiver
-import com.bartovapps.gate_opener.core.geofence.GatesGeofenceReceiver
+import com.bartovapps.gate_opener.analytics.event.GeofenceEvent
+import com.bartovapps.gate_opener.analytics.manager.Analytics
 import com.bartovapps.gate_opener.core.location.LocationHelper
+import com.bartovapps.gate_opener.core.manager.GateOpenerManagerImpl.Companion.GATE_OPENER_NOTIFICATION_ID
 import com.bartovapps.gate_opener.utils.createAppNotification
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -17,15 +18,26 @@ import javax.inject.Inject
 class GateOpenerService : Service() {
 
     @Inject
-    lateinit var locationHelper : LocationHelper
+    lateinit var locationHelper: LocationHelper
+
+    @Inject
+    lateinit var analytics: Analytics
+
+    override fun onCreate() {
+        super.onCreate()
+        analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.GATE_OPENER_SERVICE_STARTED))
+        val notification = createAppNotification(context = this.applicationContext)
+        startForeground(GATE_OPENER_NOTIFICATION_ID, notification)
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null) {
-            stopSelf(startId)
+            terminate()
             return START_NOT_STICKY
         }
         val action = intent.action
         if (action == null) {
-            stopSelf(startId)
+            terminate()
             return START_NOT_STICKY
         }
 
@@ -33,24 +45,28 @@ class GateOpenerService : Service() {
     }
 
     private fun handleStartCommand(action: String): Int {
-        Log.i("GateOpenerService", "handleStartCommand: action: $action")
+        Log.i(TAG, "handleStartCommand: action: $action")
         return when (action) {
             ACTION_START -> {
-                val notification = createAppNotification(context = this.applicationContext)
-                startForeground(FOREGROUND_SERVICE_ID, notification)
                 locationHelper.startListenToLocationUpdates()
                 START_STICKY
             }
             else -> {
-                stopSelf() // Stop all the instances
+                terminate()
                 START_NOT_STICKY
             }
         }
     }
 
+    private fun terminate() {
+        stopForeground(true)
+        stopSelf()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        Log.i("GateOpenerService", "onDestroy: ")
+        Log.i(TAG, "onDestroy:")
+        analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.GATE_OPENER_SERVICE_STOPPED))
         locationHelper.stopListenToLocationUpdates()
     }
 
@@ -58,9 +74,10 @@ class GateOpenerService : Service() {
         return null
     }
 
-    companion object{
-        const val FOREGROUND_SERVICE_ID = 0xF91C0FE
-        private const val ACTION_START = "com.bartovapps.gate_opener.core.GateOpenerService.start"
+    companion object {
+        private const val TAG = "XXX: GateOpenerService"
+        private const val ACTION_START = "GateOpenerService.start"
+
         /**
          * Send start command to the foreground service
          * @param context

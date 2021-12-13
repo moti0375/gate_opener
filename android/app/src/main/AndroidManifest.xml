@@ -11,6 +11,7 @@
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
        android:name=".App"
@@ -58,9 +59,6 @@
         <receiver
             android:name=".core.activity_detector.ActivityDetectionReceiver"
             android:exported="false" />
-
-        <receiver android:name=".core.geofence.GatesGeofenceReceiver" />
-        <receiver android:name=".core.geofence.GateAlarmReceiver"/>
 
         <receiver android:name=".core.BootCompleteReceiver"
             android:exported="true"

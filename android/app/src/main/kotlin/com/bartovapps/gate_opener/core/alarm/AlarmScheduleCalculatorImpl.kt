@@ -2,6 +2,7 @@ package com.bartovapps.gate_opener.core.alarm
 
 import android.location.Location
 import android.util.Log
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class AlarmScheduleCalculatorImpl @Inject constructor(): AlarmScheduleCalculator {
@@ -21,27 +22,26 @@ class AlarmScheduleCalculatorImpl @Inject constructor(): AlarmScheduleCalculator
      *
      */
     override fun calculateAlarmSchedule(locationA: Location, locationB: Location): Long {
-        val distance = locationA.distanceTo(locationB)
-        val fullKms : Double = (distance/1000).toDouble()
+        val distance  = locationA.distanceTo(locationB)/1000
 
-        Log.i(TAG, "calculateAlarmSchedule: distance ${fullKms}Km")
-        return if(fullKms > 0 && fullKms < 1.0) { //Less then 1 km, make it every minute
-            Log.i(TAG, "calculateAlarmSchedule: getting closer.. ${ONE_MINUTE_IN_MILLISECONDS}msec")
-            ONE_MINUTE_IN_MILLISECONDS
+        Log.i(TAG, "calculateAlarmSchedule: distance ${distance}Km")
+
+        val timeBetweenLocations = distance/2 //At 120Kmh (in minutes)
+        Log.i(TAG, "calculateAlarmSchedule: timeBetweenLocations ${timeBetweenLocations}min")
+        val scheduleTimeMinutes = (timeBetweenLocations / 2) //The time which will take to pass half of the distance at 120Kmh (in minutes)
+        Log.i(TAG, "calculateAlarmSchedule: scheduleTimeMinutes ${scheduleTimeMinutes}min")
+        val scheduleTime = (TimeUnit.MINUTES.toMillis(scheduleTimeMinutes.toLong()))
+        Log.i(TAG, "calculateAlarmSchedule: timeToLocation ${scheduleTime}msec")
+
+        return if(scheduleTime < TimeUnit.SECONDS.toMillis(30L)){
+            TimeUnit.SECONDS.toMillis(30L)
         } else {
-            //Time to location if driving 120Kmh
-                val timeBetweenLocations = fullKms/2
-            Log.i(TAG, "calculateAlarmSchedule: timeBetweenLocations ${timeBetweenLocations}min")
-            val scheduleTimeMinutes = (timeBetweenLocations / 2)
-            Log.i(TAG, "calculateAlarmSchedule: scheduleTimeMinutes ${scheduleTimeMinutes}min")
-            val scheduleTime = (scheduleTimeMinutes * ONE_MINUTE_IN_MILLISECONDS).toLong()
-            Log.i(TAG, "calculateAlarmSchedule: timeToLocation ${scheduleTime} msec")
             scheduleTime //Time to next alarm
         }
+
     }
 
     companion object{
-        const val ONE_MINUTE_IN_MILLISECONDS = 60 * 1000L
         private const val TAG = "XXX: AlarmScheduleCalc"
     }
 }

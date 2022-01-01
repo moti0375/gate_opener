@@ -53,12 +53,20 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <service android:name=".core.GateOpenerService" />
-        <service android:name=".core.geofence.GateGeofenceService" />
+        <service android:name=".core.GateOpenerService"
+            android:enabled="true"/>
+        <service android:name=".core.geofence.GateGeofenceService"
+            android:enabled="true"/>
 
         <receiver
             android:name=".core.activity_detector.ActivityDetectionReceiver"
-            android:exported="false" />
+            android:exported="false"
+            android:enabled="true"/>
+
+        <receiver
+            android:name=".core.alarm.AlarmReceiver"
+            android:exported="false"
+            android:enabled="true"/>
 
         <receiver android:name=".core.BootCompleteReceiver"
             android:exported="true"

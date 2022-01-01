@@ -5,7 +5,7 @@
     <string name="km_format">%.1f ק״מ</string>
     <string name="meters_format">%.1f מטר</string>
     <string name="reaching_gate">מתקרב אל: %1$s, בעוד %2$s</string>
-    <string name="driving_to">נסיעה אל: %1$s, בעוד %2$s</string>
+    <string name="driving_to">נעול על: %1$s, בעוד %2$s</string>
     <string name="around">באיזור של %1$s</string>
     <string name="calling">מחייג ל: %1$s</string>
 

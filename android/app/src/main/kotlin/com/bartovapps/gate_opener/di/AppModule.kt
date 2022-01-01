@@ -30,6 +30,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -54,6 +55,7 @@ abstract class AppModule {
     abstract fun bindGateOpenerManager(gateOpenerManagerImpl: GateOpenerManagerImpl) : GateOpenerManager
 
     @Binds
+    @Singleton
     abstract fun bindAlarmScheduler(scheduler: AlarmManagerActivator) : AlarmScheduler
 
     @Binds
@@ -81,6 +83,7 @@ abstract class AppModule {
         }
 
         @Provides
+        @Singleton
         fun provideAlarmManager(@ApplicationContext context: Context) : AlarmManager {
             return context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         }

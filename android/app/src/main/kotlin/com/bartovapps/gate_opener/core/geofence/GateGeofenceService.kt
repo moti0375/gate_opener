@@ -12,21 +12,14 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.core.os.bundleOf
-import com.bartovapps.gate_opener.analytics.event.Event
 import com.bartovapps.gate_opener.analytics.event.GeofenceEvent
 import com.bartovapps.gate_opener.analytics.manager.Analytics
-import com.bartovapps.gate_opener.core.GateOpenerService
 import com.bartovapps.gate_opener.core.manager.GateOpenerManager
 import com.bartovapps.gate_opener.core.manager.GateOpenerManagerImpl.Companion.GATE_OPENER_NOTIFICATION_ID
 import com.bartovapps.gate_opener.utils.PermissionsHelper
 import com.bartovapps.gate_opener.utils.createAppNotification
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -41,6 +34,8 @@ class GateGeofenceService : Service(), LocationListener {
     @Inject
     lateinit var analytics: Analytics
 
+
+    private var job: Job? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -85,6 +80,7 @@ class GateGeofenceService : Service(), LocationListener {
         stopLocationListener()
         stopForeground(true)
         stopSelf() // Stop all the instances
+        job?.cancel()
     }
 
     @SuppressLint("MissingPermission")
@@ -124,17 +120,15 @@ class GateGeofenceService : Service(), LocationListener {
     override fun onProviderDisabled(provider: String) {}
 
     private fun checkForClosestGate(location: Location) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val closestGate = gateOpenerManager.getNearestGate(location)
-            Log.i(TAG, "checkForClosestGate: $closestGate")
-            closestGate?.let {
-                if (it.second < GEOFENCE_ENTER_RADIUS) { //Use has entered a near gate geofence
-                    Log.i(TAG, "Entered geofence of: ${closestGate.first.name}")
-                    analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.ENTERED_GEOFENCE).setDetails(it.first.toBundle()))
-                    gateOpenerManager.onGettingCloseToNearGate()
-                } else {
-                    gateOpenerManager.noGateFoundAtThisLocation(location) //Updating the manager that no gate was found, reschedule the alarm
-                }
+        job = CoroutineScope(Dispatchers.IO).launch {
+            val nearestGate = gateOpenerManager.getNearestGate(location)
+            Log.i(TAG, "checkForClosestGate: $nearestGate")
+            if(nearestGate != null && nearestGate.second < GEOFENCE_ENTER_RADIUS) {
+                Log.i(TAG, "Entered geofence of: ${nearestGate.first.name}")
+                analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.ENTERED_GEOFENCE).setDetails(nearestGate.first.toBundle()))
+                gateOpenerManager.onGettingCloseToNearGate()
+            } else {
+                gateOpenerManager.noGateFoundAtThisLocation(location) //Updating the manager that no gate was found, reschedule the alarm
             }
             terminate()
         }
@@ -146,7 +140,12 @@ class GateGeofenceService : Service(), LocationListener {
         const val GEOFENCE_ENTER_RADIUS = 1000
         const val GEOFENCE_EXIT_FACTOR = 1.25
 
-        @RequiresApi(Build.VERSION_CODES.S)
+        fun getLaunchIntent(context: Context) : Intent{
+            val intent = Intent(context, GateGeofenceService::class.java)
+            intent.action = ACTION_START
+            return intent
+        }
+
         @SuppressLint("WrongConstant")
         fun getPendingIntent(context: Context): PendingIntent {
             val intent = Intent(context, GateGeofenceService::class.java)

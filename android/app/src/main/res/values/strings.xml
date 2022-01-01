@@ -5,7 +5,7 @@
     <string name="km_format">%.1f Km</string>
     <string name="meters_format">%.1f M</string>
     <string name="reaching_gate">Reaching %1$s in %2$s</string>
-    <string name="driving_to">Driving to: %1$s, in %2$s</string>
+    <string name="driving_to">Locked on: %1$s, in %2$s</string>
     <string name="around">Around to %1$s</string>
     <string name="calling">Calling to: %1$s</string>
 </resources>

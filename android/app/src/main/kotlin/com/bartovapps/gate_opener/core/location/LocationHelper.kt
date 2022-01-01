@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.os.bundleOf
 import com.bartovapps.gate_opener.R
 import com.bartovapps.gate_opener.analytics.event.GeofenceEvent
 import com.bartovapps.gate_opener.analytics.manager.Analytics
@@ -24,6 +25,10 @@ import com.bartovapps.gate_opener.model.Gate
 import com.bartovapps.gate_opener.utils.FG_CHANNEL
 import com.bartovapps.gate_opener.utils.kmhToMsec
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -40,6 +45,7 @@ class LocationHelper @Inject constructor(
 
     private val mNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private var insideGeofence = true
+    private var job : Job? = null
 
     @SuppressLint("MissingPermission")
     fun startListenToLocationUpdates() {
@@ -54,7 +60,13 @@ class LocationHelper @Inject constructor(
 
 
     override fun onLocationChanged(location: Location) {
-        processLocation(location)
+        if(job?.isActive == true) {
+            job?.cancel()
+        }
+
+        job = CoroutineScope(Dispatchers.IO).launch {
+            processLocation(location)
+        }
     }
 
 
@@ -73,7 +85,7 @@ class LocationHelper @Inject constructor(
                 }
                 val distance = location.distanceTo(gateLocation)
 
-                if (distance > GEOFENCE_ENTER_RADIUS * GEOFENCE_EXIT_FACTOR) { //It means we're leaving the nearest gate..
+                if (distance > GEOFENCE_ENTER_RADIUS * GEOFENCE_EXIT_FACTOR) { //It means we're leaving the nearest gate geofence..
                     gateOpenerManager.onExitNearestGateZone()
                     analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.EXIT_GEOFENCE))
                     return
@@ -91,7 +103,7 @@ class LocationHelper @Inject constructor(
                         }
                         true
                     } else {
-                        if (insideGeofence) {
+                        if (insideGeofence) { //Leaving nearest gate surrounding area
                             updateNotification(context.getString(R.string.around, it.name))
                         }
                         false
@@ -106,7 +118,7 @@ class LocationHelper @Inject constructor(
     private fun updateNotification(message: String) {
         val builder = NotificationCompat.Builder(context, FG_CHANNEL)
             .setSmallIcon(R.drawable.ic_parking_barrier)
-            .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_parking_barrier))
+            .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_action_parking_barrier_black))
             .setContentText(message)
         mNotificationManager.notify(GATE_OPENER_NOTIFICATION_ID, builder.build())
     }
@@ -117,7 +129,7 @@ class LocationHelper @Inject constructor(
     }
 
     companion object {
-        private const val MINIMUM_ACCURACY = 25
+        private const val MINIMUM_ACCURACY = 40
         private const val OPEN_MIN_SPEED = 15
         private const val OPEN_MAX_SPEED = 45
         private const val OPEN_TRIGGER_DISTANCE = 50

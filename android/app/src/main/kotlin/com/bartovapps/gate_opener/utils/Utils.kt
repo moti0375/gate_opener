@@ -31,7 +31,7 @@ internal fun createAppNotification(context: Context): Notification {
         .addAction(REQUEST_CODE, "", pendingIntent)
         .setSmallIcon(R.drawable.ic_parking_barrier)
         .setPriority(NotificationCompat.PRIORITY_MIN)
-        .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_parking_barrier))
+        .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_action_parking_barrier_black))
 
     return builderCompat.build()
 }

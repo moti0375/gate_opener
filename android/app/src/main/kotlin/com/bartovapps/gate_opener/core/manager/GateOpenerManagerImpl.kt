@@ -3,6 +3,7 @@ package com.bartovapps.gate_opener.core.manager
 import android.content.Context
 import android.content.Intent
 import android.location.Location
+import android.os.Build
 import android.util.Log
 import com.bartovapps.gate_opener.analytics.event.ManagerEvent
 import com.bartovapps.gate_opener.analytics.manager.Analytics
@@ -12,7 +13,6 @@ import com.bartovapps.gate_opener.core.alarm.AlarmScheduleCalculator
 import com.bartovapps.gate_opener.core.alarm.AlarmScheduler
 import com.bartovapps.gate_opener.core.geofence.GateGeofenceService
 import com.bartovapps.gate_opener.di.QActivityDetectorActivator
-import com.bartovapps.gate_opener.di.QAlarmManagerActivator
 import com.bartovapps.gate_opener.model.Gate
 import com.bartovapps.gate_opener.storage.gates.GatesDao
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -33,6 +33,8 @@ class GateOpenerManagerImpl @Inject constructor(
 ) : GateOpenerManager {
 
     private val availableGates = mutableListOf<Gate>()
+
+    @Volatile
     override var active: Boolean = false
 
     override fun start() {
@@ -42,11 +44,23 @@ class GateOpenerManagerImpl @Inject constructor(
 
     override fun onEnteredVehicle() {
         active = true
-        scheduleAlarm(2000)
+        startGeofenceService()
+        //scheduleAlarm(30000L)
+    }
+
+    private fun startGeofenceService() {
+        val serviceIntent = GateGeofenceService.getLaunchIntent(context)
+        if (active) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(serviceIntent)
+            } else {
+                context.startService(serviceIntent)
+            }
+        }
     }
 
     override fun onGettingCloseToNearGate() {
-        stopAlarmManager()
+        // stopAlarmManager()
         startGateOpenerService()
     }
 
@@ -67,16 +81,17 @@ class GateOpenerManagerImpl @Inject constructor(
     }
 
     override fun noGateFoundAtThisLocation(currentLocation: Location) {
-        val nearestGate = getNearestGate(currentLocation)
-        nearestGate?.let {
-            val schedule = scheduleCalculator.calculateAlarmSchedule(currentLocation, Location("gate").apply {
-                latitude = it.first.location.latitude
-                longitude = it.first.location.longitude
-            })
-            scheduleAlarm(schedule)
-        } ?: run{
-            scheduleAlarm(60 * 1000L)
-        }
+        scheduleAlarm(60 * 1000L)
+//        val nearestGate = getNearestGate(currentLocation)
+//        nearestGate?.let {
+//            val schedule = scheduleCalculator.calculateAlarmSchedule(currentLocation, Location("gate").apply {
+//                latitude = it.first.location.latitude
+//                longitude = it.first.location.longitude
+//            })
+//            scheduleAlarm(schedule)
+//        } ?: run {
+//            scheduleAlarm(60 * 1000L)
+//        }
     }
 
     override fun stopTracking() {
@@ -117,11 +132,11 @@ class GateOpenerManagerImpl @Inject constructor(
         context.stopService(geofenceIntent)
     }
 
-    private fun scheduleAlarm(scheduleTime : Long = 60 * 1000L){
+    private fun scheduleAlarm(scheduleTime: Long = 60 * 1000L) {
         alarmActivator.scheduleAlarm(scheduleTime)
     }
 
-    private fun stopAlarmManager(){
+    private fun stopAlarmManager() {
         alarmActivator.cancel()
     }
 
@@ -129,7 +144,7 @@ class GateOpenerManagerImpl @Inject constructor(
     private fun fetchAllGates() {
         CoroutineScope(Dispatchers.IO).launch {
             val gates = dao.getAllGates()
-            if(gates.isEmpty()){
+            if (gates.isEmpty()) {
                 stopTracking()
             } else {
                 availableGates.clear()
@@ -138,7 +153,8 @@ class GateOpenerManagerImpl @Inject constructor(
             }
         }
     }
-    companion object{
+
+    companion object {
         private const val TAG = "GateOpenerManager"
         const val GATE_OPENER_NOTIFICATION_ID = 0xF91C0FE
     }

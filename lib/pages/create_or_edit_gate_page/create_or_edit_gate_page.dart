@@ -14,13 +14,17 @@ import 'package:gate_opener/utils/string_utils.dart';
 import 'package:gate_opener/widgets/app_text_view.dart';
 import 'package:gate_opener/widgets/custom_dialog.dart';
 import 'package:gate_opener/widgets/designed_button.dart';
+import 'package:gate_opener/widgets/location_search_view.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gate_opener/pages/create_or_edit_gate_page/create_or_edit_gate_store.dart';
 import 'package:provider/provider.dart';
 import 'package:mobx/mobx.dart';
 import 'package:geolocator/geolocator.dart';
 
+const String _placesApiKey = "AIzaSyDdK8EedWvwWXwoDHTypqw1q5m_jERHa3M";
+
 class CreateOrEditGatePage extends StatefulWidget {
+
   final CreateOrEditStore store;
 
   const CreateOrEditGatePage({Key? key, required this.store}) : super(key: key);
@@ -79,20 +83,27 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
       final LatLng? currentLocation = widget.store.location;
       return ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(16)),
-        child: GoogleMap(
-          markers: availableMarker != null ? Set.of({availableMarker}) : HashSet(),
-          onTap: _onMapClicked,
-          mapType: MapType.normal,
-          myLocationButtonEnabled: true,
-          myLocationEnabled: true,
-          initialCameraPosition: CameraPosition(
-              target: currentLocation != null ? currentLocation : LatLng(0, 0),
-              zoom: currentLocation != null ? 15 : 10),
-          onMapCreated: (GoogleMapController controller) {
-            _controller.complete(controller);
-            _googleMapController = controller;
-          },
-          onCameraMove: _onCameraMoved,
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            GoogleMap(
+              padding: EdgeInsets.only(top: 60),
+              markers: availableMarker != null ? Set.of({availableMarker}) : HashSet(),
+              onTap: _onMapClicked,
+              mapType: MapType.normal,
+              myLocationButtonEnabled: true,
+              myLocationEnabled: true,
+              initialCameraPosition: CameraPosition(
+                  target: currentLocation != null ? currentLocation : LatLng(0, 0),
+                  zoom: currentLocation != null ? 15 : 10),
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+                _googleMapController = controller;
+              },
+              onCameraMove: _onCameraMoved,
+            ),
+            LocationSearchView(),
+          ],
         ),
       );
     },)

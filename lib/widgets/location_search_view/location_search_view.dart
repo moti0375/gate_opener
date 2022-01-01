@@ -1,9 +1,42 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:gate_opener/data/model/location_search/place.dart';
 import 'package:gate_opener/widgets/location_search_view/search_view_notifier.dart';
 import 'package:provider/provider.dart';
 
-class LocationSearchView extends StatelessWidget {
-  const LocationSearchView({Key? key}) : super(key: key);
+class LocationSearchView extends StatefulWidget {
+  final ValueChanged<Place> onPlaceSelected;
+  const LocationSearchView({Key? key, required this.onPlaceSelected}) : super(key: key);
+
+
+  @override
+  _LocationSearchViewState createState() => _LocationSearchViewState();
+}
+
+class _LocationSearchViewState extends State<LocationSearchView> {
+
+  StreamSubscription? _subscription;
+  @override
+  void initState() {
+    super.initState();
+    if(_subscription == null){
+      var notifierStream = Provider.of<SearchViewNotifier>(context, listen: false).streamController.stream;
+      _subscription ??= notifierStream.listen((place) {
+        print("notifierStream: $place");
+        widget.onPlaceSelected(place);
+      });
+    }
+  }
+
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    _subscription = null;
+    print("searchView: dispose");
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +72,7 @@ class LocationSearchView extends StatelessWidget {
                     itemCount: searchViewNotifier.searchResults.length,
                     itemBuilder: (context, index) => ListTile(
                       onTap: () {
-                        searchViewNotifier.onSearchItemSelected();
+                        searchViewNotifier.onSearchItemSelected(searchViewNotifier.searchResults[index].placeId);
                       },
                           title: Text(searchViewNotifier.searchResults[index].description, style: Theme.of(context).textTheme.caption,),
                         )),

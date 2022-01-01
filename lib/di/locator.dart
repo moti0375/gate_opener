@@ -24,5 +24,5 @@ Future setGatesRepository() async {
 
   locator.registerLazySingleton<LocationSearchDataSource>(() => LocationSearchDataSourceImpl());
   locator.registerLazySingleton<LocationSearchRepository>(() => LocationSearchRepoImpl(locator<LocationSearchDataSource>()));
-  locator.registerSingleton<SearchViewNotifier>(SearchViewNotifier(locator<LocationSearchRepository>()));
+  locator.registerFactory<SearchViewNotifier>(() => SearchViewNotifier(locator<LocationSearchRepository>()));
 }

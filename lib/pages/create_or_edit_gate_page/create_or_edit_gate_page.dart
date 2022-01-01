@@ -106,7 +106,10 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
               },
               onCameraMove: _onCameraMoved,
             ),
-            LocationSearchView(),
+            LocationSearchView(onPlaceSelected: (place) {
+              print("onPlaceSelected: $place");
+              _onMapClicked(LatLng(place.geometry.location.latitude, place.geometry.location.longitude));
+            },),
           ],
         ),
       );

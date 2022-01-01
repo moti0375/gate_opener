@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:gate_opener/widgets/location_search_view/search_view_notifier.dart';
+import 'package:provider/provider.dart';
 
 class LocationSearchView extends StatelessWidget {
   const LocationSearchView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+
+    final searchViewNotifier = Provider.of<SearchViewNotifier>(context);
+    print("searchViewNotifier: build:");
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -12,6 +18,10 @@ class LocationSearchView extends StatelessWidget {
           color: Colors.black.withOpacity(0.6),
           padding: const EdgeInsets.all(8.0),
           child: TextField(
+            style: Theme.of(context).textTheme.bodyText2?.copyWith(color: Colors.white),
+            onChanged: (text) {
+              searchViewNotifier.searchPlace(text);
+            },
             decoration: InputDecoration(
                 prefixIcon: Icon(
               Icons.search,
@@ -21,14 +31,17 @@ class LocationSearchView extends StatelessWidget {
         ),
         Expanded(
           child: Visibility(
-              visible: false,
+              visible: searchViewNotifier.searchResults.isNotEmpty,
               child: Container(
                 decoration: BoxDecoration(color: Colors.black.withOpacity(0.6), backgroundBlendMode: BlendMode.darken),
                 child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: 10,
+                    itemCount: searchViewNotifier.searchResults.length,
                     itemBuilder: (context, index) => ListTile(
-                          title: Text("Address 1, TelAviv", style: Theme.of(context).textTheme.caption,),
+                      onTap: () {
+                        searchViewNotifier.onSearchItemSelected();
+                      },
+                          title: Text(searchViewNotifier.searchResults[index].description, style: Theme.of(context).textTheme.caption,),
                         )),
               )),
         )

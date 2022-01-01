@@ -14,7 +14,8 @@ import 'package:gate_opener/utils/string_utils.dart';
 import 'package:gate_opener/widgets/app_text_view.dart';
 import 'package:gate_opener/widgets/custom_dialog.dart';
 import 'package:gate_opener/widgets/designed_button.dart';
-import 'package:gate_opener/widgets/location_search_view.dart';
+import 'package:gate_opener/widgets/location_search_view/location_search_view.dart';
+import 'package:gate_opener/widgets/location_search_view/search_view_notifier.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gate_opener/pages/create_or_edit_gate_page/create_or_edit_gate_store.dart';
 import 'package:provider/provider.dart';
@@ -34,13 +35,16 @@ class CreateOrEditGatePage extends StatefulWidget {
 
   static Widget create({Gate? initialGate}) {
     print("CreateOrEditGatePage: create: $initialGate");
-    return Provider<CreateOrEditStore>(
-      create: (_) => CreateOrEditStore(locator<GateOpenerRepository>(), initialGate),
-      child: Consumer<CreateOrEditStore>(
-          builder: (context, store, child) =>
-              CreateOrEditGatePage(
-                store: store,
-              )),
+    return ChangeNotifierProvider.value(
+      value: locator<SearchViewNotifier>(),
+      child: Provider<CreateOrEditStore>(
+        create: (_) => CreateOrEditStore(locator<GateOpenerRepository>(), initialGate),
+        child: Consumer<CreateOrEditStore>(
+            builder: (context, store, child) =>
+                CreateOrEditGatePage(
+                  store: store,
+                )),
+      ),
     );
   }
 }

@@ -12,6 +12,8 @@ class Location{
   factory Location.fromJson(Map<String, dynamic> json) =>
       _$LocationFromJson(json);
 
+  factory Location.fromSearchJson(Map<dynamic, dynamic> searchJson) =>  Location(searchJson['lat'], searchJson['lng']);
+
   Map<String, dynamic> toJson() => _$LocationToJson(this);
 
 }

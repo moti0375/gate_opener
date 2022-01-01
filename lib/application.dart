@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
                   fontSize: Dimens.button,
                   fontWeight: FontWeight.bold),
               caption: GoogleFonts.workSans(
-                  color: AppColors.charcoalGrey, fontSize: Dimens.caption),
+                  color: AppColors.white, fontSize: Dimens.caption),
               bodyText1: GoogleFonts.workSans(
                   color: AppColors.charcoalGrey, fontSize: Dimens.body1),
               bodyText2: GoogleFonts.workSans(

@@ -9,13 +9,13 @@ class LocationSearchView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          color: Colors.white.withOpacity(0.6),
+          color: Colors.black.withOpacity(0.6),
           padding: const EdgeInsets.all(8.0),
           child: TextField(
             decoration: InputDecoration(
                 prefixIcon: Icon(
               Icons.search,
-              color: Colors.black,
+              color: Colors.white,
             )),
           ),
         ),
@@ -28,7 +28,7 @@ class LocationSearchView extends StatelessWidget {
                     shrinkWrap: true,
                     itemCount: 10,
                     itemBuilder: (context, index) => ListTile(
-                          title: Text("Address 1, TelAviv", style: TextStyle(color: Colors.white),),
+                          title: Text("Address 1, TelAviv", style: Theme.of(context).textTheme.caption,),
                         )),
               )),
         )

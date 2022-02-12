@@ -23,9 +23,9 @@ class AlarmReceiver : BroadcastReceiver() {
     lateinit var analytics: Analytics
 
     override fun onReceive(context: Context, intent: Intent?) {
-        val serviceIntent  = GateGeofenceService.getLaunchIntent(context)
         Log.i("XXX: AlarmReceiver", "onReceive: ")
         if(manager.active){
+            val serviceIntent  = GateGeofenceService.getLaunchIntent(context)
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
                 context.startForegroundService(serviceIntent)
             } else {

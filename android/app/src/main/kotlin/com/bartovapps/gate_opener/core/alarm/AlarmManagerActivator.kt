@@ -20,7 +20,7 @@ class AlarmManagerActivator @Inject constructor(private val alarmManager: AlarmM
 
     override fun cancel() {
         Log.i(TAG, "cancel")
-        alarmManager.cancel(geofencePendingIntent)
+       // alarmManager.cancel(geofencePendingIntent)
     }
 
     companion object{

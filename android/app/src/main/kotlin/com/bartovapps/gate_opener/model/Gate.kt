@@ -6,19 +6,26 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 
 val gson = Gson()
 
 
-data class Location(val latitude: Double, val longitude: Double)
+data class Location(@SerializedName("latitude") val latitude: Double, @SerializedName("longitude") val longitude: Double)
 
 @Entity
-data class Gate(@PrimaryKey(autoGenerate = true) val id: Int = 0, val name: String, val location: Location, @ColumnInfo(name = "phone_number") val phoneNumber: String){
-    fun toBundle() :Bundle{
+data class Gate(
+    @PrimaryKey(autoGenerate = true) @SerializedName("id") val id: Int = 0,
+    @SerializedName("name") val name: String,
+    @SerializedName("location") val location: Location,
+    @ColumnInfo(name = "phone_number") @SerializedName("phoneNumber") val phoneNumber: String
+) {
+    fun toBundle(): Bundle {
         return bundleOf("name" to name, "location" to location.toString())
     }
 }
+
 fun <T> T.serializeToMap(): Map<String, Any> {
     return convert()
 }

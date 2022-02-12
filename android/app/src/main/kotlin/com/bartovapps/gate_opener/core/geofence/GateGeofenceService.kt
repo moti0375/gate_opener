@@ -5,17 +5,20 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
+import android.location.*
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
+import androidx.annotation.MainThread
+import androidx.work.impl.Scheduler
 import com.bartovapps.gate_opener.analytics.event.GeofenceEvent
 import com.bartovapps.gate_opener.analytics.manager.Analytics
+import com.bartovapps.gate_opener.core.alarm.AlarmScheduleCalculator
 import com.bartovapps.gate_opener.core.manager.GateOpenerManager
 import com.bartovapps.gate_opener.core.manager.GateOpenerManagerImpl.Companion.GATE_OPENER_NOTIFICATION_ID
+import com.bartovapps.gate_opener.model.serializeToMap
 import com.bartovapps.gate_opener.utils.PermissionsHelper
 import com.bartovapps.gate_opener.utils.createAppNotification
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,7 +37,8 @@ class GateGeofenceService : Service(), LocationListener {
     @Inject
     lateinit var analytics: Analytics
 
-
+    @Inject
+    lateinit var scheduleCalculator: AlarmScheduleCalculator
     private var job: Job? = null
 
     override fun onCreate() {
@@ -66,7 +70,7 @@ class GateGeofenceService : Service(), LocationListener {
         }
         return when (action) {
             ACTION_START -> {
-                startLocationListener(this)
+                startLocationListener(this, 2000L, 10.0f)  //Start with 2 seconds 10 meters
                 START_STICKY
             }
             else -> {
@@ -81,12 +85,21 @@ class GateGeofenceService : Service(), LocationListener {
         stopForeground(true)
         stopSelf() // Stop all the instances
         job?.cancel()
+        job = null
     }
 
     @SuppressLint("MissingPermission")
-    private fun startLocationListener(context: Context) {
-        if (PermissionsHelper.isLocationGranted(context)) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10.0f, this)
+    @MainThread
+    private fun startLocationListener(context: Context, minTime: Long, minDistance: Float) {
+            if (PermissionsHelper.isLocationGranted(context)) {
+                stopLocationListener()
+                CoroutineScope(Dispatchers.Main).launch {
+                    val request = com.google.android.gms.location.LocationRequest.create().apply {
+                        numUpdates = 1
+
+                    }
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, this@GateGeofenceService)
+            }
         }
     }
 
@@ -97,8 +110,9 @@ class GateGeofenceService : Service(), LocationListener {
     override fun onDestroy() {
         super.onDestroy()
         Log.i(TAG, "onDestroy: ")
+
         analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.GEOFENCE_SERVICE_STOPPED))
-        stopLocationListener()
+        terminate()
     }
 
     private fun stopLocationListener() {
@@ -109,7 +123,7 @@ class GateGeofenceService : Service(), LocationListener {
     override fun onLocationChanged(location: Location) {
         Log.i(TAG, "onLocationChanged: $location")
         if (gateOpenerManager.active) {
-            checkForClosestGate(location)
+            processLocation(location)
         }
     }
 
@@ -119,18 +133,28 @@ class GateGeofenceService : Service(), LocationListener {
     override fun onProviderEnabled(provider: String) {}
     override fun onProviderDisabled(provider: String) {}
 
-    private fun checkForClosestGate(location: Location) {
+    private fun processLocation(location: Location) {
+        job?.cancel()
         job = CoroutineScope(Dispatchers.IO).launch {
             val nearestGate = gateOpenerManager.getNearestGate(location)
             Log.i(TAG, "checkForClosestGate: $nearestGate")
-            if(nearestGate != null && nearestGate.second < GEOFENCE_ENTER_RADIUS) {
-                Log.i(TAG, "Entered geofence of: ${nearestGate.first.name}")
-                analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.ENTERED_GEOFENCE).setDetails(nearestGate.first.toBundle()))
-                gateOpenerManager.onGettingCloseToNearGate()
-            } else {
-                gateOpenerManager.noGateFoundAtThisLocation(location) //Updating the manager that no gate was found, reschedule the alarm
+            nearestGate?.let {
+                if(it.second < GEOFENCE_ENTER_RADIUS){
+                    Log.i(TAG, "Entered geofence of: ${nearestGate.first.name}")
+                    analytics.sendEvent(GeofenceEvent(eventName = GeofenceEvent.EVENT_NAME.ENTERED_GEOFENCE).setDetails(it.first.toBundle()))
+                    gateOpenerManager.onGettingCloseToNearGate()
+                } else {
+                    val nearestGateLocation = Location("Gate").apply {
+                        latitude = it.first.location.latitude
+                        longitude = it.first.location.longitude
+                    }
+                    val minTime = scheduleCalculator.calculateAlarmSchedule(location, nearestGateLocation)
+                    val minDistance = nearestGateLocation.distanceTo(location) / 2 //set the distance to middle of the distance from nearest gate
+                    Log.i(TAG, "Reschedule location updates: minTime: $minTime, minDistance: $minDistance")
+                    delay(minTime)
+                    startLocationListener(context = this@GateGeofenceService, minTime, minDistance)
+                }
             }
-            terminate()
         }
     }
 

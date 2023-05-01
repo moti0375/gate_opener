@@ -20,9 +20,8 @@ class GateCardItem extends StatelessWidget {
 
     Widget _buildCardFooter(BuildContext context) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
@@ -62,13 +61,14 @@ class GateCardItem extends StatelessWidget {
       child: Card(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
           children: [
             Icon(Icons.map, size: size * 0.5, color: color),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Divider(thickness: 4),
             ),
-            _buildCardFooter(context)
+            Expanded(child: _buildCardFooter(context))
           ],
         ),
       ),

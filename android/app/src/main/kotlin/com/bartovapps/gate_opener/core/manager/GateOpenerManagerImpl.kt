@@ -15,6 +15,7 @@ import com.bartovapps.gate_opener.core.geofence.GateGeofenceService
 import com.bartovapps.gate_opener.di.QActivityDetectorActivator
 import com.bartovapps.gate_opener.model.Gate
 import com.bartovapps.gate_opener.storage.gates.GatesDao
+import com.bartovapps.gate_opener.utils.verifyMinimumSdk
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,14 +39,17 @@ class GateOpenerManagerImpl @Inject constructor(
     override var active: Boolean = false
 
     override fun start() {
-        analytics.sendEvent(ManagerEvent(eventName = ManagerEvent.EVENT_NAME.STARTED))
+        //analytics.sendEvent(ManagerEvent(eventName = ManagerEvent.EVENT_NAME.STARTED))
         fetchAllGates()
     }
 
     override fun onEnteredVehicle() {
         active = true
-        startGeofenceService()
-        //scheduleAlarm(30000L)
+        if (verifyMinimumSdk(Build.VERSION_CODES.S)) {
+            scheduleAlarm(10000L)
+        } else {
+            startGeofenceService()
+        }
     }
 
     private fun startGeofenceService() {
@@ -62,6 +66,7 @@ class GateOpenerManagerImpl @Inject constructor(
     override fun onGettingCloseToNearGate() {
         // stopAlarmManager()
         startGateOpenerService()
+        stopGeofenceService()
     }
 
     override fun onExitNearestGateZone() {
@@ -104,7 +109,7 @@ class GateOpenerManagerImpl @Inject constructor(
         Log.i(TAG, "onExitVehicle: stop everything!!")
         active = false
         stopAlarmManager()
-        stopForegroundService()
+        stopGeofenceService()
         stopGateOpenerService()
     }
 
@@ -126,7 +131,7 @@ class GateOpenerManagerImpl @Inject constructor(
         context.stopService(intent)
     }
 
-    private fun stopForegroundService() {
+    private fun stopGeofenceService() {
         val geofenceIntent = Intent(context, GateGeofenceService::class.java)
         geofenceIntent.action = "STOP_SERVICE"
         context.stopService(geofenceIntent)

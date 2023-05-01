@@ -83,6 +83,16 @@
             tools:node="remove">
         </provider>
 
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- This entry makes ExampleLoggerInitializer discoverable. -->
+            <meta-data  android:name="com.bartovapps.gate_opener.app_initializer.AppInitializer"
+                android:value="androidx.startup" />
+        </provider>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDdK8EedWvwWXwoDHTypqw1q5m_jERHa3M" />

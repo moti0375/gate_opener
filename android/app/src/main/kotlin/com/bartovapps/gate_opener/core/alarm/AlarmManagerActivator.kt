@@ -3,6 +3,7 @@ package com.bartovapps.gate_opener.core.alarm
 import android.app.AlarmManager
 import android.content.Context
 import android.util.Log
+import com.bartovapps.gate_opener.core.geofence.GateGeofenceService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.lang.System.currentTimeMillis
 import javax.inject.Inject
@@ -11,7 +12,7 @@ import javax.inject.Singleton
 @Singleton
 class AlarmManagerActivator @Inject constructor(private val alarmManager: AlarmManager, @ApplicationContext private val context: Context) : AlarmScheduler {
 
-    private val geofencePendingIntent = AlarmReceiver.getPendingIntent(context)
+    private val geofencePendingIntent = GateGeofenceService.getPendingIntent(context)
 
     override fun scheduleAlarm(schedule: Long) {
         Log.i(TAG, "scheduleAlarm: schedule: $schedule")

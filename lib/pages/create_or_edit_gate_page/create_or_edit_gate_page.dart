@@ -190,7 +190,6 @@ class _CreateOrEditGatePageState extends State<CreateOrEditGatePage> {
                   SizedBox(
                     height: 16,
                   ),
-                  _locationPane(),
                   Expanded(child: _createFormSection(context)),
                   Observer(
                     builder: (_) =>

@@ -51,6 +51,8 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
             crunchPngs false
+            minifyEnabled true
+
             ndk {
                 abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86_64'
             }
@@ -59,8 +61,6 @@ android {
 
     lintOptions {
         checkReleaseBuilds false
-        // Or, if you prefer, you can continue to check for errors in release builds,
-        // but continue the build even when errors are found:
         abortOnError false
     }
 
@@ -73,9 +73,9 @@ flutter {
 dependencies {
     implementation platform('com.google.firebase:firebase-bom:29.0.0')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin_version"
-    implementation 'com.google.android.gms:play-services-location:16.0.0'
-    implementation 'com.google.android.gms:play-services-maps:16.1.0'
-    implementation 'androidx.core:core-ktx:1.2.0-alpha01'
+    implementation 'com.google.android.gms:play-services-location:19.0.1'
+    implementation 'com.google.android.gms:play-services-maps:18.0.2'
+    implementation 'androidx.core:core-ktx:1.9.0-alpha01'
 
     implementation "com.google.dagger:hilt-android:2.38.1"
     implementation 'androidx.hilt:hilt-work:1.0.0'

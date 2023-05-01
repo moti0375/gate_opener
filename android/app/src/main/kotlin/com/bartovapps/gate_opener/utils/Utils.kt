@@ -51,4 +51,8 @@ private fun createNotificationChannel(context: Context) {
     }
 }
 
+fun verifyMinimumSdk(minimumSdk : Int) : Boolean {
+    return Build.VERSION.SDK_INT >= minimumSdk
+}
+
 fun kmhToMsec(kmh: Int) =  kmh * MSEC_FACTOR
